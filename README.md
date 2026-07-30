@@ -141,6 +141,10 @@ genieCodeWorkshop/
 - [WanderBricks Analytics Handbook](docs/reference/wanderbricks-analytics-handbook.md) — business definitions and KPIs (also used as the "tool-building" demo)
 - [PROJECT_MEMORY.md](PROJECT_MEMORY.md) — all architectural decisions for this workshop
 
+### Further Reading
+
+- [Why A Frontier Data Agent Outperforms General Coding Agents in Quality and Cost](https://www.databricks.com/blog/why-frontier-data-agent-outperforms-general-coding-agents-quality-and-cost) — Databricks AI Research (July 2026). Across 400+ real tasks, Genie Code was both the most accurate and cheapest agent tested, delivering correct answers at less than half the cost of general coding agents. Deep semantic understanding of enterprise context means Genie Code skips brute-force schema exploration that drives other agents' errors and high costs.
+
 ---
 
 ## License
