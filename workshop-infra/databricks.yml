@@ -1,0 +1,36 @@
+# Workshop Infrastructure Bundle
+# Deploy BEFORE the workshop to set up shared pre-requisites.
+# This bundle creates resources that students need but shouldn't build themselves.
+#
+# Usage:
+#   databricks bundle deploy -t dev
+#
+# What this deploys:
+#   - Shared schema for workshop artifacts (if needed)
+#   - Volume for reference documents (Analytics Handbook PDF, etc.)
+#   - Any grants or permissions that require admin privileges
+#
+# This bundle is intentionally minimal. Add resources as needs are discovered.
+
+bundle:
+  name: workshop-infra
+
+variables:
+  catalog:
+    description: "Target catalog for workshop resources"
+  schema_prefix:
+    description: "Prefix for workshop schemas (e.g., 'genie_workshop')"
+    default: "genie_workshop"
+
+targets:
+  dev:
+    default: true
+    variables:
+      catalog: "" # Set per-instructor, e.g., hls_fde_dev
+
+resources:
+  schemas:
+    workshop_schema:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}_infra
+      comment: "Shared infrastructure for Genie Code Workshop. Deployed by instructor."
