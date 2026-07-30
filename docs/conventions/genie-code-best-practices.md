@@ -222,6 +222,7 @@ Genie Code's capabilities change based on which editor/page you're on. Choosing 
 | **Dashboard** | Widget creation, dataset binding, layout tools | Dashboard building and editing |
 | **Jobs Page** | Job configuration, task editing, run history | Job setup, scheduling, debugging failures |
 | **Apps Page** | App scaffolding, deployment, permission management | App development and deployment |
+| **Bundle Editor** | Bundle YAML editing, resource definitions, variable configuration, target management | DAB configuration, resource wiring, multi-target setup |
 
 ### Key Insight: Navigate to Get the Right Tools
 
@@ -231,6 +232,7 @@ If you're in a notebook and want to create a job, **ask Genie Code to navigate y
 
 **Starting a new project?** → Git folder (scaffold structure, create files)  
 **Exploring data?** → Notebook (execute queries, inspect results)  
+**Configuring a bundle?** → Bundle editor (resource definitions, variables, targets)  
 **Building a pipeline?** → Pipeline editor (specialized SDP tools)  
 **Creating a dashboard?** → Dashboard page (widget tools)  
 **Setting up a job?** → Jobs page (task configuration tools)  
