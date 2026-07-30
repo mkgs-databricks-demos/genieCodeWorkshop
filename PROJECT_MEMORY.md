@@ -198,6 +198,10 @@ genieCodeWorkshop/
 │   │   ├── bundles/
 │   │   └── vibe-sessions/
 │   └── diagrams/
+├── fixtures/
+│   └── sessions/                      # Workshop BUILD memory (our authoring sessions)
+│       ├── INDEX.md
+│       └── YYYY-MM-DD_*.md
 ├── workshop-infra/                    # DAB: instructor pre-setup (deploy ahead of time)
 │   ├── databricks.yml
 │   └── src/
@@ -205,7 +209,7 @@ genieCodeWorkshop/
     ├── databricks.yml
     ├── src/
     └── fixtures/
-        └── sessions/
+        └── sessions/                  # Student session summaries (created during workshop)
 ```
 
 ---
