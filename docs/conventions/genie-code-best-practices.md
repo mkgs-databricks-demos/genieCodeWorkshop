@@ -6,21 +6,36 @@
 
 ## Table of Contents
 
+**Foundations**
 1. [The Context Principle](#the-context-principle)
 2. [Git Workflow](#git-workflow)
 3. [Project Memory](#project-memory)
-4. [Session Summaries](#session-summaries)
-5. [Choosing the Right Editor](#choosing-the-right-editor)
-6. [Skills Management](#skills-management)
-7. [MCP Servers](#mcp-servers)
-8. [Declarative Automation Bundle Conventions](#declarative-automation-bundle-conventions)
-9. [Spark Declarative Pipeline Conventions](#spark-declarative-pipeline-conventions)
-10. [The Flywheel: Building Tools for Genie Code](#the-flywheel-building-tools-for-genie-code)
-11. [Cross-Domain Collaboration Folders](#cross-domain-collaboration-folders)
-12. [Working with Genie Code: Interaction Patterns](#working-with-genie-code-interaction-patterns)
-13. [`.assistant_instructions.md` vs `PROJECT_MEMORY.md`](#assistant_instructionsmd-vs-project_memorymd)
+4. [`.assistant_instructions.md` vs `PROJECT_MEMORY.md`](#assistant_instructionsmd-vs-project_memorymd)
+5. [Session Summaries](#session-summaries)
+6. [Sharing Genie Code Sessions](#sharing-genie-code-sessions)
+
+**Editors & Context**
+7. [Choosing the Right Editor](#choosing-the-right-editor)
+8. [Unity Catalog as Context](#unity-catalog-as-context)
+9. [Naming for Discoverability](#naming-for-discoverability)
+10. [Skills Management](#skills-management)
+11. [MCP Servers](#mcp-servers)
+12. [Genie Spaces & Agents](#genie-spaces--agents)
+
+**Building**
+13. [Declarative Automation Bundle Conventions](#declarative-automation-bundle-conventions)
 14. [Deployment Script Conventions](#deployment-script-conventions)
-15. [Platform Gotchas](#platform-gotchas)
+15. [Spark Declarative Pipeline Conventions](#spark-declarative-pipeline-conventions)
+16. [The Flywheel: Building Tools for Genie Code](#the-flywheel-building-tools-for-genie-code)
+
+**Collaboration & Patterns**
+17. [Cross-Domain Collaboration Folders](#cross-domain-collaboration-folders)
+18. [Working with Genie Code: Interaction Patterns](#working-with-genie-code-interaction-patterns)
+
+**Reference**
+19. [Platform Gotchas](#platform-gotchas)
+20. [Quick Reference: CLI Gotchas](#quick-reference-cli-gotchas)
+21. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
 
 ---
 
@@ -45,14 +60,16 @@ The single most important factor in Genie Code's effectiveness is **context**. E
 All work must be done in feature branches. This is non-negotiable.
 
 ```
-# Branch naming convention
-mg-genie-<short-description>
+# Branch naming pattern
+<initials>-genie-<short-description>
 
 # Examples
 mg-genie-phase6-shutdown-polish
-mg-genie-add-metrics-pipeline
-mg-genie-fix-auth-flow
+jd-genie-add-metrics-pipeline
+sk-genie-fix-auth-flow
 ```
+
+Use your own initials. The `-genie-` infix signals this is a Genie Code-assisted branch (useful for team awareness and filtering).
 
 **Why this matters for Genie Code:**
 - Genie Code can commit and push from feature branches safely
@@ -181,14 +198,12 @@ A record of what happened in a Genie Code session — problems encountered, deci
 ## Root Causes
 - [Why it happened]
 
-## Changes Made
-- [Files modified, resources created]
-
 ## Decisions
 - [Architectural choices and rationale]
 
-## Files Modified
-- `path/to/file.py` — [what changed]
+## Changes Made
+- `path/to/file.py` — [what changed and why]
+- `path/to/other.yml` — [what changed and why]
 ```
 
 ### INDEX.md
@@ -228,6 +243,18 @@ Genie Code's capabilities change based on which editor/page you're on. Choosing 
 | **Jobs Page** | Job configuration, task editing, run history | Job setup, scheduling, debugging failures |
 | **Apps Page** | App scaffolding, deployment, permission management | App development and deployment |
 | **Bundle Editor** | Full DAB topology, resource definitions, variable interpolation, target management, dependency graph awareness | DAB configuration, resource wiring, multi-target setup, architectural decisions |
+
+### Why the Bundle Editor Is the Most Important Editor
+
+For building data products, the Bundle Editor deserves special emphasis. When you open `databricks.yml`, Genie Code gains:
+
+* **Full architectural visibility** — every resource (schemas, jobs, pipelines, volumes, endpoints) and how they relate
+* **Dependency graph awareness** — understands that a job depends on a schema, which depends on a catalog variable
+* **Variable interpolation context** — sees `${var.*}`, `${resources.*}`, and target overrides as a connected system
+* **Multi-target understanding** — knows dev vs. prod configurations and can reason about promotion
+* **Resource type expertise** — knows the full YAML schema for each resource type
+
+This is the editor where "context is everything" becomes tangible. A single `databricks.yml` gives Genie Code more architectural context than a dozen separate files ever could. Start here — define WHAT to build (resources in YAML) — then move to other editors to write HOW (code in notebooks, pipelines, apps).
 
 ### Key Insight: Navigate to Get the Right Tools
 
@@ -313,6 +340,108 @@ Set up MCP servers at the START of a project. When Genie Code can access:
 - Your Google Docs → it reads specifications and design docs
 
 This is context that would otherwise live only in your head.
+
+---
+
+## Unity Catalog as Context
+
+Unity Catalog metadata is Genie Code's richest source of automatic context. Every table description, column comment, and governance tag is visible without any extra setup.
+
+### Column Comments Are Not Optional
+
+Column comments are the single highest-ROI action for Genie Code effectiveness:
+
+```sql
+ALTER TABLE bookings ALTER COLUMN total_amount COMMENT 'Total amount paid by guest in USD, including cleaning fees and service charges. Does not include platform commission.';
+ALTER TABLE bookings ALTER COLUMN status COMMENT 'Booking lifecycle status: pending, confirmed, cancelled_by_guest, cancelled_by_host, completed';
+```
+
+**Why:** Genie Code reads these comments when exploring tables. A comment like `'Booking lifecycle status: pending, confirmed, cancelled_by_guest, cancelled_by_host, completed'` eliminates an entire exploration query that a general coding agent would need to run.
+
+### Table Descriptions
+
+```sql
+COMMENT ON TABLE gold.host_performance IS 'Aggregated host metrics including superhost status, response time SLA compliance, and cancellation rates. Refreshed daily. Grain: one row per host per evaluation period.';
+```
+
+**Include:** What the table contains, the grain, refresh cadence, and key business context.
+
+### Schema-Level Documentation
+
+```sql
+COMMENT ON SCHEMA wanderbricks_gold IS 'Business-ready analytics tables for the WanderBricks platform. All tables are metric views or aggregated facts suitable for dashboards and Genie Spaces.';
+```
+
+### Tags for Governance AND Context
+
+Unity Catalog tags serve double duty — governance compliance AND Genie Code context:
+
+```sql
+ALTER TABLE bookings SET TAGS ('pii' = 'true', 'domain' = 'revenue', 'tier' = 'gold');
+```
+
+Genie Code sees these tags and can make informed decisions about data sensitivity, domain ownership, and quality tier without asking.
+
+---
+
+## Naming for Discoverability
+
+Genie Code searches and matches semantically. How you name things directly affects how well it finds and understands them.
+
+### Table Naming
+
+| Pattern | Example | Why |
+| --- | --- | --- |
+| `<domain>_<entity>` | `revenue_bookings_daily` | Domain prefix groups related tables |
+| `<tier>_<entity>` | `gold_host_performance` | Tier prefix signals data quality/readiness |
+| Avoid abbreviations | `customer_support_logs` not `cust_supp_logs` | Genie Code matches natural language |
+| Pluralize entities | `bookings`, `reviews`, `properties` | Matches how humans describe data |
+
+### Column Naming
+
+* Use `_id` suffix for foreign keys (`property_id`, `user_id`) — Genie Code infers join paths
+* Use `_at` suffix for timestamps (`created_at`, `updated_at`) — signals temporal columns
+* Use `_count`, `_amount`, `_rate` for measures — signals aggregation intent
+* Avoid generic names (`value`, `data`, `info`, `type`) without a prefix
+
+### Schema Naming
+
+* `<project>_bronze` / `<project>_silver` / `<project>_gold` — medallion is universally understood
+* Or `<project>_raw` / `<project>_curated` / `<project>_analytics` — alternative that's equally clear
+* Per-developer schemas for isolation: `dev_<username>_<project>`
+
+---
+
+## Genie Spaces & Agents
+
+### What Are They?
+
+Genie Spaces (formerly AI/BI Genie) provide natural language analytics over specific tables. They're also the foundation for building domain-specific agents that Genie Code can interact with.
+
+### Setting Up a Genie Space for Best Results
+
+**Table selection:**
+* Include ONLY tables relevant to the space's domain (fewer, focused tables > many unfocused tables)
+* Prefer gold/analytics tier tables with clear column comments
+* Include dimension tables needed for joins
+
+**Instructions text:**
+* Define domain vocabulary ("When users say 'superhost', they mean hosts with >=4.5 avg rating AND >=10 bookings in 90 days")
+* Specify default behaviors ("Always filter out cancelled bookings unless explicitly asked")
+* Declare join paths ("To get destination info, join properties.destination_id = destinations.destination_id")
+* Set guardrails ("Never expose guest PII. Aggregate to property or destination level.")
+
+**Example queries:**
+* Add 5-10 representative questions with their expected SQL
+* Cover the main use cases the space serves
+* Include edge cases (date ranges, null handling)
+
+### Genie Spaces as Genie Code Tools
+
+A well-configured Genie Space becomes a tool that Genie Code can use:
+* Genie Code queries the space for analytics answers during app development
+* The space's instructions encode business logic once, reused everywhere
+* Students can test their metric views by querying them through the Genie Space
 
 ---
 
@@ -463,10 +592,11 @@ spark.read.table("catalog.schema.table")        # NOT dlt.read()
 - **Configuration** in YAML files (`fixtures/config/`)
 - **Notebooks** read config and invoke classes
 
-This pattern means:
-- Genie Code can modify config without touching logic
-- New sources/targets are config additions, not code changes
-- Testing is straightforward (swap config, same logic)
+**Why this is powerful with Genie Code:**
+- Genie Code reads a YAML config and generates a complete new pipeline source without modifying existing code paths
+- Adding a new table to the pipeline is a config addition — Genie Code doesn't need to understand all existing logic
+- Config files serve as documentation: Genie Code reads them to understand the full pipeline topology
+- Testing is straightforward (swap config, same logic) — Genie Code can generate test configs
 
 ### Legacy Migration Reference
 
@@ -589,22 +719,23 @@ project-root/
 
 ## Working with Genie Code: Interaction Patterns
 
-### File Editing Workflow
+### Review-Before-Commit Principle
 
-When Genie Code edits files on your behalf:
+Genie Code should show you what it's changing before finalizing edits. Expect this workflow:
 
-1. **`openAsset` first** — so you can see the diff and review what changed
-2. **Then `editAsset`** — with the correct asset type (`notebook` | `query` | `dashboard` | `file`)
-3. For `file` type, set `id` to the full workspace path
+1. **Navigate to the file** — so you can see the before/after in the editor
+2. **Apply the edit** — changes appear in your editor for review
+3. **You confirm** — by continuing the conversation or committing
 
-**Exception:** Skip `openAsset` for trivial single-line fixes when you're already viewing the file.
+**Exception:** For trivial single-line fixes on a file you're already viewing, Genie Code can edit directly.
 
-### Why This Matters
+### Guiding Principle: Tell, Don't Surprise
 
-This workflow ensures:
-- You always see what changed (no blind edits)
-- Genie Code uses the right tool for the right asset type
-- File paths are unambiguous
+Train your interaction style around visibility:
+- Ask Genie Code to "show me the plan" before large refactors
+- For multi-file changes, request a summary of what will change
+- Use session summaries to capture what DID change after the fact
+- If Genie Code edits the wrong file or makes an unwanted change, the feature branch isolates it
 
 ---
 
@@ -649,20 +780,20 @@ This workflow ensures:
 When bundles need shell-based deployment orchestration:
 
 ```bash
-# safe_url() — preserves :// in workspace host URLs
+# safe_url() — minimal encoding for URLs (encodes spaces, preserves structure)
 safe_url() {
   echo "$1" | sed 's/ /%20/g'
 }
 
-# safe() — URL-encodes all special characters (for non-URL values)
+# safe() — full URL-encoding for non-URL values (secret values, names with special chars)
 safe() {
   python3 -c "import urllib.parse; print(urllib.parse.quote('$1', safe=''))"
 }
 ```
 
-**Rules:**
-- `safe_url()` for workspace host interpolation (must preserve `://`)
-- `safe()` for all other interpolations (secret values, schema names with special chars)
+**When to use which:**
+- `safe_url()` for workspace host URLs where you only need to handle spaces (preserves `://`, `/`, etc.)
+- `safe()` for values that may contain arbitrary special characters (secret values, schema names)
 - Lakebase project ID: extract from `databricks bundle summary`, prepend `projects/` for CLI calls
 
 ---
