@@ -222,7 +222,7 @@ Genie Code's capabilities change based on which editor/page you're on. Choosing 
 | **Dashboard** | Widget creation, dataset binding, layout tools | Dashboard building and editing |
 | **Jobs Page** | Job configuration, task editing, run history | Job setup, scheduling, debugging failures |
 | **Apps Page** | App scaffolding, deployment, permission management | App development and deployment |
-| **Bundle Editor** | Bundle YAML editing, resource definitions, variable configuration, target management | DAB configuration, resource wiring, multi-target setup |
+| **Bundle Editor** | Full DAB topology, resource definitions, variable interpolation, target management, dependency graph awareness | DAB configuration, resource wiring, multi-target setup, architectural decisions |
 
 ### Key Insight: Navigate to Get the Right Tools
 

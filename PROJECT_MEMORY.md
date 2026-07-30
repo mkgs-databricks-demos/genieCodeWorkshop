@@ -223,6 +223,16 @@ genieCodeWorkshop/
 
 ---
 
+## Key Design Decisions
+
+### The Bundle Editor Is Central to This Workshop
+
+The Bundle Editor is the most important editor for this training. When `databricks.yml` is open, Genie Code sees the full data product topology — every resource, their dependencies, variables, and targets — in one view. This is where "context is everything" becomes tangible.
+
+The workshop flow reinforces this: every vibe session starts in the Bundle Editor (define WHAT to build as resources in YAML) before moving to other editors (write HOW in notebooks, pipelines, apps). This teaches students that the bundle is the architectural source of truth, and Genie Code is most effective when it can see that full picture.
+
+---
+
 ## Key Naming Decisions
 
 | Item | Name | Rationale |
