@@ -118,13 +118,26 @@ Raw context (doc/data) → Ingest → Index → UC Function → Genie Code tool 
 **Flow:** Query `information_schema` → generate comprehensive doc → index → Genie Code can semantically answer "which table has payment info?"  
 **When:** Part of Vibe Session 1 infrastructure setup.
 
+### The Centerpiece: AI Search Endpoint as Design Partner (Vibe Session 2 → 3)
+
+The single biggest "aha moment" of the workshop:
+
+1. In Vibe Session 2, students build a Vector Search endpoint over property descriptions + reviews
+2. That endpoint is a **live, production data product** — a real queryable artifact
+3. In Vibe Session 3, Genie Code uses that SAME endpoint as a tool to **design the app**
+4. Genie Code can query it: "show me luxury properties in Florence," "what do guests complain about in apartments?" — and use the results to inform UX decisions, filtering logic, recommendation patterns
+
+This is NOT the same as the handbook (static definitions). This is a live, evolving data product that becomes its own design partner. **The thing you build IS the context for building the next thing.**
+
+This is the purest expression of the flywheel and Takeaway #3: "Use the power of Databricks to build tools that Genie Code itself can use."
+
 ### Layered Sequence
 
 | When | Tool Created | Genie Code Uses It For |
 | --- | --- | --- |
 | Vibe Session 1 | Analytics Handbook index + Data Dictionary | Correct metric view definitions, finding tables |
-| Vibe Session 2 | Support Resolution index (+ refine property index) | Understanding issue taxonomy |
-| Vibe Session 3 | All tools available | App logic, prompt engineering, feature design |
+| Vibe Session 2 | AI Search endpoint (properties + reviews) + Support Resolution index | Semantic understanding of inventory and issue patterns |
+| Vibe Session 3 | **The AI Search endpoint IS the tool** | App design decisions — what to show, how to filter, what users care about |
 
 ---
 
