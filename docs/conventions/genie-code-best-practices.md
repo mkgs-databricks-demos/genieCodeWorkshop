@@ -16,6 +16,11 @@
 8. [Declarative Automation Bundle Conventions](#declarative-automation-bundle-conventions)
 9. [Spark Declarative Pipeline Conventions](#spark-declarative-pipeline-conventions)
 10. [The Flywheel: Building Tools for Genie Code](#the-flywheel-building-tools-for-genie-code)
+11. [Cross-Domain Collaboration Folders](#cross-domain-collaboration-folders)
+12. [Working with Genie Code: Interaction Patterns](#working-with-genie-code-interaction-patterns)
+13. [`.assistant_instructions.md` vs `PROJECT_MEMORY.md`](#assistant_instructionsmd-vs-project_memorymd)
+14. [Deployment Script Conventions](#deployment-script-conventions)
+15. [Platform Gotchas](#platform-gotchas)
 
 ---
 
@@ -544,6 +549,150 @@ A well-structured Genie Code session IS documentation. If you:
 - End with a session summary
 
 ...then sharing that session teaches others both the *what* and the *why*.
+
+---
+
+## Cross-Domain Collaboration Folders
+
+### The Pattern
+
+When collaborating across domains (e.g., Genie Code handles Databricks work while another tool/person handles non-Databricks work like mobile apps, front-end, or external systems), use **shared context folders** as communication channels:
+
+```
+project-root/
+├── architecture/
+│   ├── hi_genie/        # Context FROM collaborator TO Genie Code (read-only for Genie)
+│   └── hey_collaborator/ # Progress/replies FROM Genie Code TO collaborator
+```
+
+### Rules
+
+- **`hi_genie/`** (or equivalent inbound folder): Read-only context. Always read before substantive work. Never write to it.
+- **`hey_<collaborator>/`** (or equivalent outbound folder): Where you share progress, decisions, questions back.
+- Each domain owner is the source of truth for their domain.
+- Both folders live at the architecture/docs level, NOT inside individual bundle directories.
+
+### Why This Works
+
+- Eliminates context switching — each agent/person reads a folder instead of attending meetings
+- Creates an audit trail of decisions and handoffs
+- Works asynchronously — no requirement for simultaneous presence
+- Each collaborator works in their strongest tool (Genie Code in Databricks, another tool elsewhere)
+
+### When to Use
+
+- Multi-platform projects (Databricks + mobile/web/external)
+- Team collaboration where different people own different layers
+- Any project where context needs to flow between domains without direct integration
+
+---
+
+## Working with Genie Code: Interaction Patterns
+
+### File Editing Workflow
+
+When Genie Code edits files on your behalf:
+
+1. **`openAsset` first** — so you can see the diff and review what changed
+2. **Then `editAsset`** — with the correct asset type (`notebook` | `query` | `dashboard` | `file`)
+3. For `file` type, set `id` to the full workspace path
+
+**Exception:** Skip `openAsset` for trivial single-line fixes when you're already viewing the file.
+
+### Why This Matters
+
+This workflow ensures:
+- You always see what changed (no blind edits)
+- Genie Code uses the right tool for the right asset type
+- File paths are unambiguous
+
+---
+
+## `.assistant_instructions.md` vs `PROJECT_MEMORY.md`
+
+### Two Different Files, Two Different Purposes
+
+| File | Scope | Contains | Lives At |
+| --- | --- | --- | --- |
+| `.assistant_instructions.md` | **You** (cross-project) | Personal preferences, universal conventions, brand knowledge, platform gotchas | `~/.assistant_instructions.md` (home directory) |
+| `PROJECT_MEMORY.md` | **One project** | Architecture, decisions, resource IDs, environment mappings, open questions | Bundle root or repo root |
+
+### Rule of Thumb
+
+- If it applies to ALL your projects → `.assistant_instructions.md`
+- If it applies to THIS project only → `PROJECT_MEMORY.md`
+- If in doubt, put it in PROJECT_MEMORY — it's easier to promote to instructions later than to untangle project-specific info from global prefs
+
+### What Goes Where
+
+**`.assistant_instructions.md` (global):**
+- Git workflow conventions (branch naming, never-main rule)
+- Editor preferences and interaction patterns
+- SDK install patterns
+- CLI gotchas you've discovered
+- Brand/design system references
+- Collaboration folder conventions
+
+**`PROJECT_MEMORY.md` (per-project):**
+- Resource IDs and target mappings
+- Architecture decisions and rationale
+- Integration points and dependencies
+- Team-specific naming conventions
+- Deployment sequences and dependencies
+
+---
+
+## Deployment Script Conventions
+
+### deploy.sh Patterns
+
+When bundles need shell-based deployment orchestration:
+
+```bash
+# safe_url() — preserves :// in workspace host URLs
+safe_url() {
+  echo "$1" | sed 's/ /%20/g'
+}
+
+# safe() — URL-encodes all special characters (for non-URL values)
+safe() {
+  python3 -c "import urllib.parse; print(urllib.parse.quote('$1', safe=''))"
+}
+```
+
+**Rules:**
+- `safe_url()` for workspace host interpolation (must preserve `://`)
+- `safe()` for all other interpolations (secret values, schema names with special chars)
+- Lakebase project ID: extract from `databricks bundle summary`, prepend `projects/` for CLI calls
+
+---
+
+## Platform Gotchas
+
+### Databricks Apps — Authenticated Traffic
+
+The Apps auth sidecar redirects all unauthenticated requests (HTTP 302). This means:
+- `executeCode` / `curl` from notebooks **always fail** against app endpoints
+- Plain Bearer tokens → 403
+- Must use notebook with `WorkspaceClient().config.authenticate()` headers
+
+```python
+from databricks.sdk import WorkspaceClient
+import requests
+
+wc = WorkspaceClient()
+headers = {}
+wc.config.authenticate(headers)  # Injects proper auth
+response = requests.get(f"{app_url}/api/health", headers=headers)
+```
+
+### SQL Editor Queries API
+
+Saved SQL queries are UUID-based, managed via `/api/2.0/sql/queries` (NOT the workspace file API). To relocate a query:
+1. POST new query with desired `parent_path`
+2. Delete old query
+
+You cannot simply "move" them like workspace files.
 
 ---
 
