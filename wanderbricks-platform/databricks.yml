@@ -1,0 +1,54 @@
+bundle:
+  name: wanderbricks-platform
+
+variables:
+  catalog:
+    description: "Unity Catalog catalog for all WanderBricks resources"
+  schema_prefix:
+    description: "Prefix for all schemas (enables per-student isolation)"
+    default: "wanderbricks"
+  warehouse_id:
+    description: "SQL Warehouse ID for SQL-based tasks and Genie Spaces"
+
+targets:
+  dev:
+    default: true
+    variables:
+      catalog: ""  # TODO: Set to your dev catalog (e.g., "my_sandbox")
+
+# =============================================================================
+# RESOURCES — Built during Vibe Sessions
+# =============================================================================
+#
+# Vibe Session 1 (Infrastructure) will add:
+#   - schemas (bronze, silver, gold)
+#   - volumes (raw_data, checkpoints)
+#   - pipelines (bronze_ingestion, silver_transform, gold_aggregate)
+#   - jobs (daily_refresh, metric_computation)
+#   - (Optional) lakebase project, feature tables
+#
+# Vibe Session 2 (AI Search) will add:
+#   - vector_search endpoint and index resources (if managed via bundle)
+#
+# Vibe Session 3 (Apps) will add:
+#   - apps (wanderbricks_app)
+#
+# Start with schemas — everything else depends on them.
+# =============================================================================
+
+resources:
+  schemas:
+    bronze:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}_bronze
+      comment: "Raw ingested data from samples.wanderbricks. Append-only streaming tables."
+
+    silver:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}_silver
+      comment: "Cleaned, deduplicated, and conformed data. Type-safe, null-handled."
+
+    gold:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}_gold
+      comment: "Business-ready analytics: metric views, aggregated facts, feature tables."
