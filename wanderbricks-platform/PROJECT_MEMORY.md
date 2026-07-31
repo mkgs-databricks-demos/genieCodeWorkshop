@@ -1,6 +1,6 @@
 # PROJECT_MEMORY.md — WanderBricks Platform
 
-> Last updated: 2026-07-30
+> Last updated: 2026-07-31
 > Owner: <your-email>@databricks.com
 
 ## Project Identity
