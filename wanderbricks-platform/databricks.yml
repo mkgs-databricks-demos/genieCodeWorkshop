@@ -1,0 +1,15 @@
+bundle:
+  name: wanderbricks-platform
+
+variables:
+  catalog:
+    description: "Unity Catalog catalog for all WanderBricks resources"
+  schema:
+    description: "Schema name for WanderBricks platform objects"
+
+targets:
+  dev:
+    default: true
+    variables:
+      catalog: ""  # TODO: Set to your dev catalog
+      schema: ""   # TODO: Set to your dev schema
