@@ -58,6 +58,16 @@ resources, src/ structure) before writing new code.
     - ALL git operations (clone, checkout, commit, push) go to the WORKING CLONE.
     - Before any runGit call, verify repoPath starts with the clone base path.
 
+1d. BUNDLE-FIRST RULE (CRITICAL):
+    - ALL resources (pipelines, jobs, schemas, volumes) MUST be defined in
+      resources/*.yml files and deployed via `databricks bundle deploy --target dev`.
+    - NEVER hardcode catalog/schema names. Use ${var.catalog}, ${var.schema},
+      ${resources.schemas.<name>.catalog_name}, ${resources.schemas.<name>.name}.
+    - NEVER create resources via SDK calls or raw SQL outside of bundle deploy.
+    - `databricks bundle validate --target dev` MUST pass before deploying.
+    - A resource deployed without the bundle (no dev prefix, hardcoded names)
+      is INCORRECT even if it technically works.
+
 2. SET UP WORKING CLONE:
    a. Check if working clone path exists.
    b. If NOT: runGit clone (url: <remote>, path: <clone-path>, provider: gitHub).

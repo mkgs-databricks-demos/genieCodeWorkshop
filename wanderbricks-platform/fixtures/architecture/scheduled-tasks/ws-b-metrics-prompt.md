@@ -52,6 +52,15 @@ Read these files:
       {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
        "etag": <etag>, "update_mask": "schedule.paused"}
     If fails, continue (IN_PROGRESS gate is backup).
+7d. BUNDLE-FIRST RULE (CRITICAL):
+    - ALL resources (pipelines, jobs, schemas, volumes) MUST be defined in
+      resources/*.yml and deployed via `databricks bundle deploy --target dev`.
+    - NEVER hardcode catalog/schema names. Use ${var.catalog}, ${var.schema},
+      ${resources.schemas.wanderbricks_schema.catalog_name}, ${resources.schemas.wanderbricks_schema.name}.
+    - NEVER create resources via SDK calls or raw SQL outside bundle deploy.
+    - `databricks bundle validate --target dev` MUST pass before deploying.
+    - A resource without the bundle dev prefix is INCORRECT even if it runs.
+
 
 7c. GIT FOLDER ISOLATION (CRITICAL):
     - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ = SHARED git folder.

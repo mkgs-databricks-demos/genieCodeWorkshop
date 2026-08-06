@@ -89,6 +89,35 @@ Every prompt must include a guard rule:
 > (e.g., `/Workspace/Users/.../genie-code-workstream-orchestration/`).
 > If it starts with the orchestration hub path, STOP — you are making an error.
 
+### Bundle-First Rule (MANDATORY)
+
+ALL infrastructure changes MUST go through the Declarative Automation Bundle:
+
+1. **Resources** — Pipelines, jobs, schemas, volumes, Lakebase projects — MUST be
+   defined in `resources/*.yml` files. Never create them via SDK calls, raw SQL
+   (`CREATE SCHEMA`), or CLI commands outside of `bundle deploy`.
+
+2. **Variables** — Use `${var.catalog}`, `${var.schema}`, etc. NEVER hardcode
+   catalog or schema names (e.g., never write `hls_fde_dev` literally in resource
+   YAML or pipeline code). The bundle's dev mode adds user prefixes automatically.
+
+3. **Resource References** — Use `${resources.schemas.wanderbricks_schema.catalog_name}`
+   and `${resources.schemas.wanderbricks_schema.name}` for cross-resource dependencies.
+   Never raw `${var.schema}` except in the schema resource definition itself.
+
+4. **Deploy** — `databricks bundle deploy --target dev` is the ONLY way to create or
+   update infrastructure. Never call `w.pipelines.create()`, `CREATE TABLE` outside a
+   pipeline notebook, or any other direct provisioning.
+
+5. **Validation** — `databricks bundle validate --target dev` MUST pass before deploy.
+   Fix all errors. A resource that deploys without bundle awareness (no prefix, wrong
+   catalog) is INCORRECT even if it technically runs.
+
+**Why:** Dev mode prefixes (`[dev matthew_giglia]`) and schema prefixes
+(`dev_matthew_giglia_*`) are applied automatically by the bundle. Resources created
+outside this flow won't have them, will collide with other users, and won't be
+tracked in bundle state.
+
 ### Clone Lifecycle
 
 1. **Created** on first run of a workstream (idempotent — if exists, reuse)
