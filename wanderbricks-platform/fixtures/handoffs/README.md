@@ -73,6 +73,7 @@ WS-0 (Bundle Scaffold) [COMPLETE]
 - **WS-B** gates on WS-A (gold tables must be populated)
 - **WS-C** gates on WS-B (metric views must be queryable)
 - **WS-D** gates on WS-A (silver/gold tables must exist) — runs parallel with WS-B
+- **WS-FINAL** gates on ALL (A, B, C, D) — writes summary + merge instructions
 
 ### Branch Strategy
 

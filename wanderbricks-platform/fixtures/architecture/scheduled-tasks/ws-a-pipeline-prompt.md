@@ -3,15 +3,17 @@
 ## scheduleAgentTool Parameters
 
 - **title:** `WanderBricks WS-A Pipeline`
-- **cronExpression:** `0 */15 * * * ?`
+- **cronExpression:** `0 */3 * * * ?` (first workstream — fast poll for immediate feedback)
 
 ## Instructions (copy verbatim into scheduleAgentTool)
 
 ```
 You are executing Workstream A of the WanderBricks Platform: building the full Spark Declarative Pipeline (bronze → silver → gold).
 
-Project: /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Git repo: /Users/matthew.giglia@databricks.com/genieCodeWorkshop
+Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline/
+Git remote: (same repo as orchestration hub)
+Branch from: lesson/02-vibe-infra
 
 == GATE CHECK ==
 
@@ -43,9 +45,15 @@ Also explore the source data:
 
 == EXECUTE ==
 
-7. Update workstream-a-status.md to status: IN_PROGRESS, set started_at.
+7. Update workstream-a-status.md (in the ORCHESTRATION HUB path above) to status: IN_PROGRESS, set started_at.
 
-8. Create git branch: mg-genie-wb-ws-a-pipeline (from lesson/02-vibe-infra in the genieCodeWorkshop repo).
+8. SET UP WORKING CLONE:
+   a. Check if the working clone path exists (listed above).
+   b. If NOT: Clone the git repo to that path (same remote URL as the orchestration hub repo).
+   c. In the clone: checkout branch lesson/02-vibe-infra, then pull latest.
+   d. Create new branch mg-genie-wb-ws-a-pipeline from lesson/02-vibe-infra.
+   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume prior run).
+   f. ALL code work below happens in this clone. Status files are ALWAYS in the orchestration hub.
 
 9. Build the pipeline:
 

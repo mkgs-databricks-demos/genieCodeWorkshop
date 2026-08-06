@@ -1,7 +1,7 @@
 ---
-status: NOT_STARTED
-branch:
-started_at:
+status: IN_PROGRESS
+branch: mg-genie-wb-ws-a-pipeline
+started_at: 2026-08-06T00:00:00Z
 completed_at:
 output_tables: []
 validation: PENDING
@@ -11,7 +11,7 @@ tests_passed: false
 
 # Workstream A — SDP Pipeline (Bronze → Silver → Gold)
 
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS
 
 ## Upstream Dependencies
 - WS-0 COMPLETE (schema must be deployed)

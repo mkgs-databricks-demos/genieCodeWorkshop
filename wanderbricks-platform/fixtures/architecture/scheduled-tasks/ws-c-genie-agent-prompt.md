@@ -10,8 +10,10 @@
 ```
 You are executing Workstream C of the WanderBricks Platform: creating a Genie Space (AI agent) over the gold layer and metric views.
 
-Project: /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Git repo: /Users/matthew.giglia@databricks.com/genieCodeWorkshop
+Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/c-genie-agent/
+Git remote: (same repo as orchestration hub)
+Branch from: mg-genie-wb-ws-b-metrics (branch stacking — gives access to WS-A + WS-B code)
 
 == GATE CHECK ==
 
@@ -35,9 +37,15 @@ Read these files:
 
 == EXECUTE ==
 
-6. Update workstream-c-status.md to status: IN_PROGRESS, set started_at.
+6. Update workstream-c-status.md (in ORCHESTRATION HUB) to status: IN_PROGRESS, set started_at.
 
-7. Create git branch: mg-genie-wb-ws-c-genie-agent (from lesson/02-vibe-infra).
+7. SET UP WORKING CLONE:
+   a. Check if the working clone path exists.
+   b. If NOT: Clone the git repo to that path.
+   c. In the clone: checkout mg-genie-wb-ws-b-metrics (upstream), pull latest.
+   d. Create new branch mg-genie-wb-ws-c-genie-agent from mg-genie-wb-ws-b-metrics.
+   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-c-genie-agent (resume).
+   f. ALL code work in this clone. Status files in orchestration hub.
 
 8. Create the Genie Space resource:
 

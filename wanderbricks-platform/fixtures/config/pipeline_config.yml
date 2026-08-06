@@ -1,0 +1,90 @@
+# WanderBricks Pipeline Configuration
+# Source: samples.wanderbricks (16 tables)
+# Architecture: Bronze (streaming ingest) → Silver (clean/conform) → Gold (aggregate)
+
+source:
+  catalog: samples
+  schema: wanderbricks
+
+tables:
+  - name: properties
+    pk: property_id
+    business_keys: [property_id]
+    fks: [host_id, destination_id]
+
+  - name: bookings
+    pk: booking_id
+    business_keys: [booking_id]
+    fks: [user_id, property_id]
+
+  - name: reviews
+    pk: review_id
+    business_keys: [review_id]
+    fks: [booking_id, property_id, user_id]
+
+  - name: users
+    pk: user_id
+    business_keys: [user_id]
+    fks: []
+
+  - name: hosts
+    pk: host_id
+    business_keys: [host_id]
+    fks: []
+
+  - name: destinations
+    pk: destination_id
+    business_keys: [destination_id]
+    fks: []
+
+  - name: payments
+    pk: payment_id
+    business_keys: [payment_id]
+    fks: [booking_id]
+
+  - name: countries
+    pk: country
+    business_keys: [country]
+    fks: []
+
+  - name: amenities
+    pk: amenity_id
+    business_keys: [amenity_id]
+    fks: []
+
+  - name: property_amenities
+    pk: [property_id, amenity_id]
+    business_keys: [property_id, amenity_id]
+    fks: [property_id, amenity_id]
+
+  - name: property_images
+    pk: image_id
+    business_keys: [image_id]
+    fks: [property_id]
+
+  - name: booking_updates
+    pk: booking_update_id
+    business_keys: [booking_update_id]
+    fks: [booking_id, property_id, user_id]
+
+  - name: page_views
+    pk: view_id
+    business_keys: [view_id]
+    fks: [user_id, property_id]
+
+  - name: employees
+    pk: employee_id
+    business_keys: [employee_id]
+    fks: [host_id]
+
+  - name: customer_support_logs
+    pk: ticket_id
+    business_keys: [ticket_id]
+    fks: [user_id]
+    notes: "ticket_id and created_at are STRING type; messages is ARRAY<STRUCT>"
+
+  - name: clickstream
+    pk: null
+    business_keys: [user_id, timestamp]
+    fks: [user_id, property_id]
+    notes: "No single PK; metadata is STRUCT<device, referrer>"

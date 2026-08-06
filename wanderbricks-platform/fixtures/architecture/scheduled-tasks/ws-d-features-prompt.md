@@ -10,8 +10,10 @@
 ```
 You are executing Workstream D of the WanderBricks Platform: creating feature tables for host and property quality scoring.
 
-Project: /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Git repo: /Users/matthew.giglia@databricks.com/genieCodeWorkshop
+Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/d-features/
+Git remote: (same repo as orchestration hub)
+Branch from: mg-genie-wb-ws-a-pipeline (branch stacking — gives access to WS-A code, parallel with WS-B)
 
 == GATE CHECK ==
 
@@ -36,9 +38,15 @@ Read these files:
 
 == EXECUTE ==
 
-7. Update workstream-d-status.md to status: IN_PROGRESS, set started_at.
+7. Update workstream-d-status.md (in ORCHESTRATION HUB) to status: IN_PROGRESS, set started_at.
 
-8. Create git branch: mg-genie-wb-ws-d-features (from lesson/02-vibe-infra).
+8. SET UP WORKING CLONE:
+   a. Check if the working clone path exists.
+   b. If NOT: Clone the git repo to that path.
+   c. In the clone: checkout mg-genie-wb-ws-a-pipeline (upstream), pull latest.
+   d. Create new branch mg-genie-wb-ws-d-features from mg-genie-wb-ws-a-pipeline.
+   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-d-features (resume).
+   f. ALL code work in this clone. Status files in orchestration hub.
 
 9. Build feature tables:
 
