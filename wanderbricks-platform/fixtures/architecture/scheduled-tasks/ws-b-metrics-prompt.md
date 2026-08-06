@@ -37,8 +37,31 @@ Read these files:
 == EXECUTE ==
 
 7. Update workstream-b-status.md to status: IN_PROGRESS, set started_at.
+   Edit the file directly via workspace tools. Do NOT use git operations for status files.
 
-8. Create git branch: mg-genie-wb-ws-b-metrics (from lesson/02-vibe-infra).
+7b. SINGLE-FIRE GUARD: Prevent re-firing by marking your own scheduled task inactive.
+    List scheduled insights via the alerts-internal API (parent_asset_name=users/{your_id}).
+    Find the entry where display_name matches this task title. Extract automation_id from
+    the name field (last path segment). Then update it: body must include
+    scheduled_insight.name (the full resource path), scheduled_insight.schedule.paused=true,
+    top-level etag (from the list response), and update_mask="schedule.paused".
+    If this step fails, continue — the IN_PROGRESS gate provides backup protection.
+
+7c. GIT FOLDER ISOLATION:
+    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ is a SHARED git folder.
+      NEVER run git checkout, commit, push, or branch operations on it.
+    - Status files are edited via workspace file tools, NOT via git.
+    - ALL git operations happen ONLY in your dedicated working clone path (see step 8).
+    - Before any git operation, verify your repoPath starts with:
+      /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/
+
+8. SET UP WORKING CLONE at:
+   /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/b-metrics
+   a. If path does NOT exist: clone from https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git
+   b. In the CLONE: checkout mg-genie-wb-ws-a-pipeline (upstream), pull latest.
+   c. Create new branch mg-genie-wb-ws-b-metrics.
+   d. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-b-metrics (resume).
+   e. ALL code and git work happens here. NEVER in the orchestration hub.
 
 9. Build metric views and orchestration job:
 

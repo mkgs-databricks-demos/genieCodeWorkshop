@@ -44,8 +44,52 @@ Also explore the source data:
 == EXECUTE ==
 
 7. Update workstream-a-status.md to status: IN_PROGRESS, set started_at.
+   Use editAsset (workspace file API) to edit the status file. Do NOT use git for this.
 
-8. Create git branch: mg-genie-wb-ws-a-pipeline (from lesson/02-vibe-infra in the genieCodeWorkshop repo).
+7b. SINGLE-FIRE GUARD — Execute this exact Python code to pause your own schedule:
+
+    from databricks.sdk import WorkspaceClient
+    w = WorkspaceClient()
+    me = w.current_user.me()
+    resp = w.api_client.do("GET", "/api/2.0/alerts-internal/scheduled-insights-list/GENIE_CODE",
+                           query={"parent_asset_name": f"users/{me.id}"})
+    for task in resp.get("scheduled_insights", []):
+        if task.get("display_name") == "WanderBricks WS-A Pipeline":
+            auto_id = task["name"].split("/")[-1]
+            w.api_client.do("PATCH", f"/api/2.0/alerts-internal/scheduled-insights/{auto_id}",
+                           body={
+                               "scheduled_insight": {"name": task["name"], "schedule": {"paused": True}},
+                               "etag": task["etag"],
+                               "update_mask": "schedule.paused"
+                           })
+            break
+
+    If this fails, continue — the IN_PROGRESS gate check provides backup protection.
+
+7c. GIT FOLDER ISOLATION — Critical rules you MUST follow:
+    - The ORCHESTRATION HUB (/Users/matthew.giglia@databricks.com/genieCodeWorkshop/) is a SHARED
+      git folder used by multiple workstreams. NEVER run runGit checkout, commit, push, or any
+      branch-switching operation on it. Doing so breaks other workstreams.
+    - Status files (fixtures/handoffs/workstream-*-status.md) are edited via editAsset tool
+      using their workspace file IDs — they do NOT require git operations.
+    - ALL git operations (clone, checkout, branch, commit, push) happen ONLY in your WORKING CLONE.
+    - Before any runGit call, verify repoPath starts with:
+      /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/
+      If you are about to use the orchestration hub path for git, STOP. You are making an error.
+
+8. SET UP WORKING CLONE:
+   a. Check if working clone path exists:
+      /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline
+   b. If NOT: Use runGit clone:
+      - operation: clone
+      - url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git
+      - path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline
+      - provider: gitHub
+   c. In the CLONE (repoPath = clone path): checkout lesson/02-vibe-infra, pull latest.
+   d. Create new branch mg-genie-wb-ws-a-pipeline from lesson/02-vibe-infra.
+   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume prior run).
+   f. ALL code edits happen via editAsset on files in the CLONE path.
+   g. ALL git commits/pushes use repoPath = the CLONE path above. NEVER the orchestration hub.
 
 9. Build the pipeline:
 

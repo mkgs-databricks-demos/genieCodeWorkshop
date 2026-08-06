@@ -10,8 +10,10 @@
 ```
 You are executing Workstream D of the WanderBricks Platform: creating feature tables for host and property quality scoring.
 
-Project: /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Git repo: /Users/matthew.giglia@databricks.com/genieCodeWorkshop
+Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/d-features/
+Git remote: (same repo as orchestration hub)
+Branch from: mg-genie-wb-ws-a-pipeline (branch stacking — gives access to WS-A code, parallel with WS-B)
 
 == GATE CHECK ==
 
@@ -29,6 +31,10 @@ Git repo: /Users/matthew.giglia@databricks.com/genieCodeWorkshop
 
 == CONTEXT ==
 
+Before starting work, review the current state of the source code in the working clone.
+Read the README, existing resources/, and src/ structure to understand what the project
+already has and where it is currently.
+
 Read these files:
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-a-status.md (read "Notes for Downstream Sessions" for table details)
@@ -36,9 +42,35 @@ Read these files:
 
 == EXECUTE ==
 
-7. Update workstream-d-status.md to status: IN_PROGRESS, set started_at.
+7. Update workstream-d-status.md (in ORCHESTRATION HUB) to status: IN_PROGRESS, set started_at.
 
-8. Create git branch: mg-genie-wb-ws-d-features (from lesson/02-vibe-infra).
+7b. SINGLE-FIRE GUARD: Prevent re-firing by marking your own scheduled task inactive.
+    List scheduled insights via the alerts-internal API (parent_asset_name=users/{your_id}).
+    Find the entry where display_name matches this task title. Extract automation_id from
+    the name field (last path segment). Then update it: body must include
+    scheduled_insight.name (the full resource path), scheduled_insight.schedule.paused=true,
+    top-level etag (from the list response), and update_mask="schedule.paused".
+    If this step fails, continue — the IN_PROGRESS gate provides backup protection.
+
+7c. GIT FOLDER ISOLATION:
+    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ is a SHARED git folder.
+      NEVER run git checkout, commit, push, or branch operations on it.
+    - Status files are edited via workspace file tools, NOT via git.
+    - ALL git operations happen ONLY in your dedicated working clone path (see step 8).
+    - Before any git operation, verify your repoPath starts with:
+      /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/
+
+8. SET UP WORKING CLONE at:
+   /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/d-features
+   a. If path does NOT exist: clone from https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git
+   b. In the CLONE: checkout mg-genie-wb-ws-a-pipeline (upstream), pull latest.
+   c. Create new branch mg-genie-wb-ws-d-features.
+   d. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-d-features (resume).
+   e. ALL code and git work happens here. NEVER in the orchestration hub.
+
+IMPORTANT: When in doubt about the best way to implement something, use your available
+tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
+before proceeding. Always prefer modern APIs and patterns.
 
 9. Build feature tables:
 
