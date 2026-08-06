@@ -1,8 +1,8 @@
 ---
-status: COMPLETE
-branch: mg-genie-wb-ws-d-features
-started_at: 2026-08-06T18:00:00Z
-completed_at: 2026-08-06T18:50:00Z
+status: NOT_STARTED
+branch:
+started_at:
+completed_at:
 output_tables:
   - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.feature_host_performance
   - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.feature_property_quality
