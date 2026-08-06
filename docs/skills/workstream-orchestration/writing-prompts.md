@@ -88,6 +88,11 @@ that it blocks the agent's problem-solving.
 - Reference existing conventions ("follow the pattern in PROJECT_MEMORY.md")
 - Include bundle validate + deploy (catches errors early)
 - 5-15 execution steps is the sweet spot
+- ALL workspace paths MUST use the `/Workspace/Users/...` prefix — never
+  `/Users/...` (missing `/Workspace/`), never `~/` shorthand. Tools like
+  `runGit`, `readAssetById`, and `editAsset` require the full prefix.
+  This applies to EVERY path in the prompt: header fields, clone paths,
+  orchestration hub paths, and file read paths.
 - ALWAYS include: "When in doubt about the best way to implement something,
   use your available tools (docSearch, spark APIs, skill files) to check the
   latest Databricks best practices before proceeding."
@@ -176,6 +181,16 @@ The agent reads this as a new scheduling request. Cadence lives in cronExpressio
 ❌ "Process yesterday's data"
 ✅ "Process data from the most recent full UTC day"
 ```
+
+### Incorrect Workspace Path Prefix
+```
+❌ Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/...
+❌ Working clone: ~/genie-code-workstream-orchestration/...
+✅ Working clone: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/...
+```
+The `runGit` tool requires `/Workspace/Users/...` — without the `/Workspace/` prefix, clone/checkout/commit
+operations fail silently or target the wrong path. Use the full prefix for ALL paths in the prompt:
+header metadata, clone paths, status file paths, and file-read paths.
 
 ## The "Goldilocks Zone" for Specificity
 

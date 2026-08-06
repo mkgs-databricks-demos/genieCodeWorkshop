@@ -17,7 +17,7 @@ Copy and customize for each workstream. Replace all `<placeholders>`.
 You are executing workstream <X> of the <Project> orchestration: <one-sentence summary>.
 
 Orchestration hub (status files): <absolute path to project root>
-Working clone: ~/genie-code-workstream-orchestration/<project>/<x>-<description>/
+Working clone: /Workspace/Users/<username>/genie-code-workstream-orchestration/<project>/<x>-<description>/
 Git remote: (same repo as orchestration hub)
 Branch from: <upstream-branch-name>
 
