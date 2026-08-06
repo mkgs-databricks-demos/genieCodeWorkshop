@@ -60,30 +60,31 @@ that it blocks the agent's problem-solving.
 ```
 == EXECUTE ==
 
-1. Set own status to IN_PROGRESS with started_at timestamp.
+1. Set own status to IN_PROGRESS (editAsset on bundle root status file).
 
-2. SET UP WORKING CLONE:
-   a. Check if <clone-path> exists.
-   b. If NOT: Clone repo to <clone-path>.
-   c. Checkout <upstream-branch>, pull latest.
-   d. Create new branch <own-branch> from <upstream-branch>.
-   e. If EXISTS: checkout <own-branch> (resume prior run).
-   f. ALL code work in clone. Status files in orchestration hub.
+2. SINGLE-FIRE GUARD (self-pause via alerts-internal API).
 
-3. [Describe the work in 5-15 numbered steps]
+3. ALL WORK IN BUNDLE ROOT:
+   - Code: editAsset/createAsset for src/, resources/, fixtures/config/
+   - Deploy: runDatabricksCli for bundle validate/deploy/run
+   - Status: editAsset for fixtures/handoffs/
+   - NO runGit operations until GIT SYNC at the end.
+
+4. [Describe the work in 5-15 numbered steps]
    - Be specific about WHAT to build (table names, resource types)
    - Be specific about WHERE files go (directories, naming)
    - Let the agent decide HOW to implement
    - Reference conventions from PROJECT_MEMORY.md
 
-4. Bundle validate: databricks bundle validate --target dev
+5. Bundle validate: databricks bundle validate --target dev
    Fix any errors before proceeding.
 
-5. Bundle deploy: databricks bundle deploy --target dev
+6. Bundle deploy: databricks bundle deploy --target dev
 ```
 
 **Rules:**
-- Clone setup is ALWAYS step 2 (standardized across all prompts)
+- All work happens in the bundle root (no separate clone during execution)
+- Git sync is ALWAYS the last step (after COMPLETE, one-way push)
 - Describe WHAT, not HOW (the agent picks implementation details)
 - Reference existing conventions ("follow the pattern in PROJECT_MEMORY.md")
 - Include bundle validate + deploy (catches errors early)
@@ -91,8 +92,8 @@ that it blocks the agent's problem-solving.
 - ALL workspace paths MUST use the `/Workspace/Users/...` prefix — never
   `/Users/...` (missing `/Workspace/`), never `~/` shorthand. Tools like
   `runGit`, `readAssetById`, and `editAsset` require the full prefix.
-  This applies to EVERY path in the prompt: header fields, clone paths,
-  orchestration hub paths, and file read paths.
+  This applies to EVERY path in the prompt: header fields, push clone paths,
+  bundle root paths, and file read paths.
 - ALWAYS include: "When in doubt about the best way to implement something,
   use your available tools (docSearch, spark APIs, skill files) to check the
   latest Databricks best practices before proceeding."

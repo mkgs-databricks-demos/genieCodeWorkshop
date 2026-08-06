@@ -1,7 +1,7 @@
 ---
-status: NOT_STARTED
-branch:
-started_at:
+status: IN_PROGRESS
+branch: mg-genie-wb-ws-b-metrics
+started_at: 2026-08-06T20:00:00Z
 completed_at:
 output_tables: []
 validation: PENDING
@@ -11,7 +11,7 @@ tests_passed: false
 
 # Workstream B — Metric Views + Orchestration Job
 
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS
 
 ## Upstream Dependencies
 - WS-A COMPLETE (gold tables must be populated)

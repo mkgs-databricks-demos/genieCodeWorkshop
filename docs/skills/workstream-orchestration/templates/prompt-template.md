@@ -16,10 +16,11 @@ Copy and customize for each workstream. Replace all `<placeholders>`.
 
 You are executing workstream <X> of the <Project> orchestration: <one-sentence summary>.
 
-Orchestration hub (status files): <absolute path to project root>
-Working clone: /Workspace/Users/<username>/genie-code-workstream-orchestration/<project>/<x>-<description>/
-Git remote: (same repo as orchestration hub)
-Branch from: <upstream-branch-name>
+Bundle root (ALL work here): <absolute /Workspace/ path to bundle root>
+Push clone (git sync only): /Workspace/Users/<username>/genie-code-workstream-orchestration/<project>/push-clone/
+Git remote: <repo URL>
+Branch name: <own-branch-name>
+Upstream branch: <upstream-branch-name>
 
 ### GATE CHECK
 
@@ -104,7 +105,19 @@ resources, src/ structure) before writing new code.
 2. Add "What Was Built" section.
 3. Add "Notes for Downstream Sessions" with context for next workstream.
 4. Write session summary to fixtures/sessions/YYYY-MM-DD_ws-<x>-<description>.md
-5. Commit and push code changes (working clone).
-6. Status files are already saved (editAsset writes to workspace immediately).
-   They will be committed as part of a human-triggered batch commit on the hub.
+
+### GIT SYNC (end of session, one-way)
+
+After setting status = COMPLETE, archive your work to git:
+
+1. Ensure push clone exists:
+   Path: /Workspace/Users/<username>/genie-code-workstream-orchestration/<project>/push-clone/
+   If NOT: runGit clone (url: <remote>, path: above, provider: gitHub)
+2. In push clone: checkout <upstream-branch>, pull latest.
+3. Create/checkout branch <own-branch>.
+4. Copy changed files from bundle root → push clone (executeCode with file I/O).
+   Only copy files YOUR workstream created/modified (declared in File Scope).
+5. Commit + push: runGit commit_and_push on the push clone.
+
+The push clone is WRITE-ONLY. Never read from it. Never edit files there directly.
 ```

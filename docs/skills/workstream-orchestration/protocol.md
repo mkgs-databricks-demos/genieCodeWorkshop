@@ -47,50 +47,95 @@ Path convention: `<project>/fixtures/handoffs/workstream-<x>-status.md`
 - Multiple workstreams can READ the same status file simultaneously (no conflict)
 - Status transitions are one-way (never go backwards except human BLOCKED → NOT_STARTED reset)
 
-## Clone Structure
+## Working Directory & Git Strategy (Hub-Lite)
 
-### Path Convention
+### Core Principle
+
+The **bundle root** is the single working directory for everything during a session.
+All code editing, bundle CLI operations, and status file updates happen here.
+Git push is a one-way sync at the END of the session — never during.
+
+### Why Not Separate Clones?
+
+The original two-folder pattern (orchestration hub + working clone) caused drift:
+- `editAsset` only works within the bundle root path
+- `runGit` only works in a git folder
+- No tool bridges both paths seamlessly
+- Files must exist in BOTH places for bundle CLI + git push → they get out of sync
+
+**Hub-Lite eliminates this** by making the bundle root the single source of truth.
+Git is just an archival artifact produced at session end.
+
+### Architecture
 
 ```
-~/genie-code-workstream-orchestration/<project-name>/<ws-letter>-<description>/
+/Workspace/Users/{user}/{project}/
+├── {bundle-name}/                      ← BUNDLE ROOT (source of truth)
+│   ├── databricks.yml
+│   ├── resources/                      ← Create/edit code here
+│   ├── src/                            ← Create/edit code here
+│   ├── fixtures/
+│   │   ├── handoffs/                   ← Status files (editAsset)
+│   │   └── sessions/                   ← Session summaries (editAsset)
+│   └── ...
+│
+└── .git-push-clone/                    ← PUSH CLONE (write-only, end-of-session)
+    └── {project}/                      ← Full repo checkout
 ```
 
-Examples:
+### Session Lifecycle
+
 ```
-~/genie-code-workstream-orchestration/myProject/a-pipeline/
-~/genie-code-workstream-orchestration/myProject/b-metrics/
-~/genie-code-workstream-orchestration/myProject/c-agent/
+┌─────────────────────────────────────────────────────────┐
+│  SESSION START                                          │
+│                                                         │
+│  1. Gate check (read status files from bundle root)     │
+│  2. Set status = IN_PROGRESS (editAsset)                │
+│  3. Self-pause (SINGLE-FIRE GUARD)                      │
+│  4. All work happens in bundle root:                    │
+│     - editAsset / createAsset (code, YAML, configs)     │
+│     - runDatabricksCli (validate, deploy, run)          │
+│     - executeCode (validation queries)                  │
+│  5. Validate outputs                                    │
+│  6. Set status = COMPLETE (editAsset)                   │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  SESSION END — Git Sync (one-way)                       │
+│                                                         │
+│  7. Ensure push clone exists (runGit clone if needed)   │
+│  8. In push clone: checkout/create workstream branch    │
+│  9. Copy changed files: bundle root → push clone        │
+│     (executeCode with workspace SDK file copy)          │
+│ 10. Commit + push from push clone                       │
+│                                                         │
+│  Push clone is WRITE-ONLY. Never read from it.          │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Why Separate Clones?
+### Push Clone Path Convention
 
-A workspace git folder is a single working copy. Only one branch can be checked
-out at a time. If two scheduled tasks fire simultaneously and both try to checkout
-different branches in the same folder, one wins and the other corrupts its state.
+```
+/Workspace/Users/{user}/genie-code-workstream-orchestration/{project}/push-clone/
+```
 
-Separate clones solve this completely:
-- Each clone has its own branch checkout
-- No race conditions on git operations
-- True parallel execution with full isolation
+One push clone per project (shared across workstreams). Each workstream creates
+its own branch within it at session end.
 
-### Git Isolation Rule (MANDATORY)
+### Conflict Safety (Why This Works)
 
-**The orchestration hub git folder is READ-ONLY for git operations.** No workstream
-may ever run `runGit checkout`, `runGit commit_and_push`, or any branch-switching
-operation on the orchestration hub path.
+Workstreams don't conflict because:
 
-**Allowed on orchestration hub:** `readAssetById` (read any file), `editAsset` (status files ONLY)
-**Forbidden on orchestration hub:** ANY `runGit` operation, ANY `editAsset`/`createAsset` for code files
+1. **Gate checks serialize execution** — B can't start until A = COMPLETE,
+   C can't start until B = COMPLETE, etc.
+2. **File scope isolation** — Each workstream owns specific directories
+   (A: `src/pipelines/`, B: `src/sql/`, D: `src/features/`). No overlap.
+3. **Self-pause** — Each workstream fires exactly once. No concurrent instances.
+4. **Bundle deploy is additive** — Adding resource B doesn't remove resource A.
+   Multiple deploys converge to the desired state regardless of order.
+5. **No git during execution** — Zero branch operations means zero race conditions.
 
-Code files (src/, resources/, fixtures/config/) MUST be created/edited in the CLONE path.
-The orchestration hub is READ-ONLY for everything except status files (fixtures/handoffs/).
-
-**Allowed on clone paths:** ALL git operations (clone, checkout, commit, push, pull)
-
-Every prompt must include a guard rule:
-> Before any runGit call, verify repoPath starts with the clone base path
-> (e.g., `/Workspace/Users/.../genie-code-workstream-orchestration/`).
-> If it starts with the orchestration hub path, STOP — you are making an error.
+For the rare parallel case (B and D both gate only on A): their file scopes
+don't overlap, and `bundle deploy` is idempotent, so both can run safely.
 
 ### Bundle-First Rule (MANDATORY)
 
@@ -104,8 +149,8 @@ ALL infrastructure changes MUST go through the Declarative Automation Bundle:
    catalog or schema names (e.g., never write `hls_fde_dev` literally in resource
    YAML or pipeline code). The bundle's dev mode adds user prefixes automatically.
 
-3. **Resource References** — Use `${resources.schemas.wanderbricks_schema.catalog_name}`
-   and `${resources.schemas.wanderbricks_schema.name}` for cross-resource dependencies.
+3. **Resource References** — Use `${resources.schemas.<schema_name>.catalog_name}`
+   and `${resources.schemas.<schema_name>.name}` for cross-resource dependencies.
    Never raw `${var.schema}` except in the schema resource definition itself.
 
 4. **Deploy** — `databricks bundle deploy --target dev` is the ONLY way to create or
@@ -121,66 +166,42 @@ ALL infrastructure changes MUST go through the Declarative Automation Bundle:
 outside this flow won't have them, will collide with other users, and won't be
 tracked in bundle state.
 
-### Clone Lifecycle
+## Branch Stacking (Git Sync)
 
-1. **Created** on first run of a workstream (idempotent — if exists, reuse)
-2. **Used** for all code work during execution
-3. **Preserved** across retries (if a workstream fails and re-fires, it resumes)
-4. **Disposable** after all merges complete (entire tree can be safely removed)
+### Why Branches Still Matter
 
-### Idempotent Clone Logic
+Even though all work happens in the bundle root, git branches serve as:
+- Code review artifacts (PR per workstream)
+- Audit trail (what each workstream produced)
+- Rollback points (if something breaks post-merge)
 
-Every prompt includes this pattern:
+### How It Works with Hub-Lite
 
-```
-a. Check if <clone-path> exists.
-b. If NOT: Clone the repo to <clone-path>.
-c. Checkout <upstream-branch>, pull latest.
-d. Create new branch <own-branch>.
-e. If EXISTS: checkout <own-branch> (resume prior run).
-```
-
-This handles:
-- First run (clone + branch create)
-- Retry after failure (reuse clone, resume branch)
-- Re-fire after COMPLETE (caught by gate check before reaching clone logic)
-
-## Branch Stacking
-
-### The Problem It Solves
-
-Downstream workstreams often need upstream code for:
-- Bundle validation (resource YAMLs reference each other)
-- Import statements (Python modules created upstream)
-- Config files (created by upstream, consumed by downstream)
-
-Without branch stacking, downstream would branch from the base (which doesn't
-have upstream's code), and bundle validate would fail on missing references.
-
-### How It Works
+Since all workstreams work in the same bundle root sequentially, each one
+inherits the prior workstream's files naturally. At session end, the git sync
+creates a branch that captures that workstream's delta:
 
 ```
-base-branch
-    └→ ws-a-branch (branches from base)
-        ├→ ws-b-branch (branches from ws-a-branch)
-        └→ ws-d-branch (branches from ws-a-branch)
-            └→ ws-c-branch (branches from ws-b-branch)
+base-branch (scaffold)
+    └→ ws-a-branch (A's code: pipelines, resource YAML)
+        ├→ ws-b-branch (B's code: metric views, orchestration job)
+        └→ ws-d-branch (D's code: feature tables)
+            └→ ws-c-branch (C's code: genie space config)
 ```
 
-Each workstream checks out its upstream's PUSHED branch (from remote), then
-creates its own branch from that point. This gives it all upstream code.
+The push clone handles this: each workstream checks out its upstream's branch
+(which exists from the prior workstream's push), then adds its own files.
 
-### Merge Plan Consequence
+### Merge Plan
 
-Branch stacking means PRs merge in dependency order:
+PRs merge in dependency order:
 
-1. ws-a → base (only A's changes)
-2. ws-b → base (only B's changes — A already merged)
-3. ws-d → base (only D's changes — A already merged)
-4. ws-c → base (only C's changes — B already merged)
+1. ws-a → base (A's pipeline code)
+2. ws-b → base (B's metric views — A already merged)
+3. ws-d → base (D's feature tables — A already merged)
+4. ws-c → base (C's genie space — B already merged)
 
-Each PR shows ONLY that workstream's delta because its upstream is already
-in the target branch by merge time.
+Each PR shows ONLY that workstream's delta.
 
 ## Scheduling Strategy
 
@@ -306,41 +327,26 @@ If ANY is not COMPLETE, exit with a report of what's still pending.
 
 It ONLY reads status files and writes documentation.
 
-## Status File Commit Mechanics
+## Status Files & the Workspace Layer
 
-### The Two-Folder Problem
+### How Status Updates Work
 
-A workstream operates in its **clone** but status files live in the **orchestration hub**.
-How does it write status?
+Status files live in the bundle root at `fixtures/handoffs/workstream-*-status.md`.
+They are updated via `editAsset` — which persists immediately to the workspace
+filesystem layer, independent of git state.
 
-**Answer:** Genie Code's `editAsset` and `readFile` tools operate on workspace paths
-regardless of which git folder the session is "in". A session working in clone `a-pipeline/`
-can still edit files at the orchestration hub path.
+**Key insight:** `editAsset` writes are readable instantly by all sessions.
+No git commit is needed for status coordination. Git is only for archival.
 
-### Commit Flow for Status Updates
-
-**CRITICAL: NEVER run runGit on the orchestration hub.** The hub is a shared git
-folder. Running checkout/commit/push on it switches branches and breaks all other
-workstreams that read from it.
-
-**Correct pattern:**
-
-```
-1. editAsset → write status file content (workspace path in orchestration hub)
-2. Status is immediately readable by all sessions (workspace layer, independent of git)
-3. Status files are committed to git ONLY at completion, from the workstream's own CLONE
-```
-
-Status files are readable the instant they are saved via editAsset, regardless of
-git state. The workspace file layer is independent of which branch is checked out.
-Git commit of status files happens as part of the workstream's final commit+push
-from its own clone — never from the orchestration hub directly.
-
-### Recommended Pattern
+### Rules
 
 - **During execution:** Update status via `editAsset` (immediate, no git needed)
-- **At completion:** Commit status + session summary together in one push
-- **Race avoidance:** Only ONE workstream writes to each status file, so no conflicts
+- **At completion:** Status is included in the end-of-session git sync
+- **Race avoidance:** Only ONE workstream writes to each status file (enforced
+  by gate checks and file scope isolation)
+- **No runGit on the hub:** The bundle root is a shared git folder. NEVER run
+  `runGit checkout`, `commit_and_push`, or any branch operation on it.
+  Git operations happen ONLY in the push clone at session end.
 
 ## Error Recovery
 
