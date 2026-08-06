@@ -11,7 +11,7 @@ tests_passed: false
 
 # Workstream B — Metric Views + Orchestration Job
 
-**Status:** IN_PROGRESS
+**Status:** NOT_STARTED
 
 ## Upstream Dependencies
 - WS-A COMPLETE (gold tables must be populated)
