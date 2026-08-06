@@ -44,6 +44,13 @@ Read these files:
 
 7. Update workstream-d-status.md (in ORCHESTRATION HUB) to status: IN_PROGRESS, set started_at.
 
+7b. SINGLE-FIRE GUARD: After setting IN_PROGRESS, ensure this task will not
+    re-fire while you work. Find the scheduled insight named
+    "WanderBricks WS-D Features" in the alerts-internal API and mark its
+    schedule as inactive (see protocol.md for the exact API pattern). Without
+    this step, the next cron cycle may read stale tables from a prior run and
+    incorrectly mark the workstream COMPLETE.
+
 8. SET UP WORKING CLONE:
    a. Check if the working clone path exists.
    b. If NOT: Clone the git repo to that path.
