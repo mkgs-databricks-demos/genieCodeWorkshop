@@ -1,54 +1,17 @@
 ---
-status: COMPLETE
-branch: mg-genie-wb-ws-a-pipeline
-started_at: 2026-08-06T00:00:00Z
-completed_at: 2026-08-06T12:00:00Z
-output_tables:
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_properties
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_bookings
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_reviews
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_users
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_hosts
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_destinations
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_payments
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_countries
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_amenities
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_property_amenities
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_property_images
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_booking_updates
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_page_views
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_employees
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_customer_support_logs
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_clickstream
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_properties
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_bookings
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_reviews
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_users
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_hosts
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_destinations
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_payments
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_countries
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_amenities
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_property_amenities
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_property_images
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_booking_updates
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_page_views
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_employees
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_customer_support_logs
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_clickstream
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_revenue_daily
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_occupancy_monthly
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_guest_satisfaction
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_host_performance
-  - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_property_summary
-validation: PASSED
-bundle_deployed: true
-tests_passed: true
+status: NOT_STARTED
+branch:
+started_at:
+completed_at:
+output_tables: []
+validation: N/A
+bundle_deployed: N/A
+tests_passed: N/A
 ---
 
 # Workstream A — SDP Pipeline (Bronze → Silver → Gold)
 
-**Status:** COMPLETE
+**Status:** NOT_STARTED
 
 ## Upstream Dependencies
 - WS-0 COMPLETE (schema must be deployed)

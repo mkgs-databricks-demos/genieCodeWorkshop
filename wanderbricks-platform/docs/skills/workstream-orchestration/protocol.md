@@ -200,3 +200,87 @@ If ANY is not COMPLETE, exit with a report of what's still pending.
 - Modify resource YAMLs
 
 It ONLY reads status files and writes documentation.
+
+## Status File Commit Mechanics
+
+### The Two-Folder Problem
+
+A workstream operates in its **clone** but status files live in the **orchestration hub**.
+How does it write status?
+
+**Answer:** Genie Code's `editAsset` and `readFile` tools operate on workspace paths
+regardless of which git folder the session is "in". A session working in clone `a-pipeline/`
+can still edit files at the orchestration hub path.
+
+### Commit Flow for Status Updates
+
+```
+1. editAsset → write status file content (workspace path in orchestration hub)
+2. runGit(commit_and_push) on orchestration hub → persists status to remote
+```
+
+OR (simpler, if git commit isn't critical):
+
+```
+1. editAsset → write status file content (persists in workspace immediately)
+2. Skip git commit of status — workspace file is readable by all sessions
+```
+
+The second approach is simpler and avoids multi-session commit races on the hub.
+Status files are readable the moment they're saved to the workspace, regardless
+of git state. Git commit is only needed for long-term persistence and audit trail.
+
+### Recommended Pattern
+
+- **During execution:** Update status via `editAsset` (immediate, no git needed)
+- **At completion:** Commit status + session summary together in one push
+- **Race avoidance:** Only ONE workstream writes to each status file, so no conflicts
+
+## Error Recovery
+
+### When a Workstream Fails
+
+If a workstream hits an unrecoverable error:
+
+1. It sets its own status to `BLOCKED` with a description of the error
+2. Downstream workstreams continue to gate-check and exit (they see non-COMPLETE)
+3. WS-FINAL never fires (it requires ALL COMPLETE)
+
+### Human Recovery Steps
+
+1. **Read the BLOCKED status file** — understand what failed
+2. **Fix the issue** (manually or by editing the prompt)
+3. **Reset status to NOT_STARTED** — this re-arms the workstream
+4. **The next scheduled fire picks it up** — gate passes, work resumes
+
+### Common Failure Modes
+
+| Failure | Cause | Fix |
+| --- | --- | --- |
+| Clone fails | Auth/network issue | Retry (idempotent clone handles it) |
+| Bundle validate fails | Missing resource reference | Fix the resource YAML, reset status |
+| Table not created | Pipeline error | Check pipeline logs, fix, reset |
+| Session timeout | Workstream too large | Split into smaller workstreams |
+| Branch already exists | Prior partial run | Clone-if-exists logic handles it |
+
+### The "Stuck" Case
+
+If a workstream is IN_PROGRESS but the scheduled task is no longer running
+(e.g., the session timed out without updating status):
+
+1. Manually set status back to NOT_STARTED
+2. The next fire will re-enter the clone (exists) and resume from the branch state
+3. If the branch has partial work, the agent picks up where it left off
+
+## Testing Checklist
+
+Before going live with a full orchestration run:
+
+- [ ] All status files are NOT_STARTED
+- [ ] Orchestration hub is on the correct branch (scaffold/base)
+- [ ] No stale clones in ~/genie-code-workstream-orchestration/<project>/
+- [ ] All scheduled tasks are paused (create paused, unpause together)
+- [ ] PROJECT_MEMORY.md and architecture docs are committed and pushed
+- [ ] Prompt files reference correct absolute paths
+- [ ] Gate check tables don't already exist (or clean them first)
+- [ ] Bundle validates clean on the base branch
