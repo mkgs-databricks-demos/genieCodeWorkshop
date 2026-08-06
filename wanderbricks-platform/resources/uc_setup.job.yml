@@ -1,0 +1,13 @@
+resources:
+  jobs:
+    uc_setup:
+      name: WanderBricks UC Setup
+      description: "Creates UC secrets and stores Lakebase connection info post-deploy"
+      tasks:
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../src/notebooks/uc_setup.py
+            base_parameters:
+              catalog: ${resources.schemas.wanderbricks_schema.catalog_name}
+              schema: ${resources.schemas.wanderbricks_schema.name}
+              lakebase_project_id: ${var.lakebase_project_id}

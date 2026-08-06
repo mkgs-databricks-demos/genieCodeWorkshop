@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    wanderbricks_schema:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      comment: "WanderBricks Intelligence Platform - gold analytics, metric views, features, and AI search artifacts"

@@ -1,0 +1,28 @@
+# Lakebase Autoscaling - WanderBricks App State
+#
+# PostgreSQL-compatible database for the WanderBricks Databricks App.
+# Provides low-latency OLTP storage for app state: user preferences,
+# saved searches, analyst annotations, and operational dashboards.
+#
+# The project auto-creates a "production" branch with a read-write endpoint.
+# Endpoint autoscaling limits are controlled via default_endpoint_settings.
+#
+# Post-deploy: store connection info as UC secrets via the uc_setup job.
+#
+# Requires Databricks CLI >= 0.287.0
+
+resources:
+  postgres_projects:
+    wanderbricks_lakebase:
+      project_id: ${var.lakebase_project_id}
+      display_name: WanderBricks Lakebase
+      pg_version: 17
+
+      history_retention_duration: "604800s"
+
+      default_endpoint_settings:
+        autoscaling_limit_min_cu: 0.5
+        autoscaling_limit_max_cu: 2
+
+      lifecycle:
+        prevent_destroy: true

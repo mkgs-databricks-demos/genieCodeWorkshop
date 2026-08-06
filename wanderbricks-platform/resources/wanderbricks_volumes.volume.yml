@@ -1,0 +1,7 @@
+resources:
+  volumes:
+    reference_docs:
+      catalog_name: ${resources.schemas.wanderbricks_schema.catalog_name}
+      schema_name: ${resources.schemas.wanderbricks_schema.name}
+      name: reference_docs
+      volume_type: MANAGED
