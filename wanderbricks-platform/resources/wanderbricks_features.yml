@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    wanderbricks_feature_computation:
+      name: "wanderbricks_feature_computation"
+      description: "Computes host and property feature tables for ML and scoring"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "America/Los_Angeles"
+      tasks:
+        - task_key: host_features
+          notebook_task:
+            notebook_path: ../src/features/host_features.py
+          libraries:
+            - pypi:
+                package: databricks-feature-engineering
+
+        - task_key: property_features
+          notebook_task:
+            notebook_path: ../src/features/property_features.py
+          libraries:
+            - pypi:
+                package: databricks-feature-engineering
