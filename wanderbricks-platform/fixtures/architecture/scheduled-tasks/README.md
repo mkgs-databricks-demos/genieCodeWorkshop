@@ -14,14 +14,14 @@ with branch stacking (downstream workstreams branch from their upstream's pushed
 ## Clone Structure
 
 ```
-~/genie-code-workstream-orchestration/
+/Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/
 └── genieCodeWorkshop/                    ← project-level grouping
     ├── a-pipeline/                       ← WS-A clone (branch: mg-genie-wb-ws-a-pipeline)
     ├── b-metrics/                        ← WS-B clone (branch: mg-genie-wb-ws-b-metrics)
     ├── c-genie-agent/                    ← WS-C clone (branch: mg-genie-wb-ws-c-genie-agent)
     └── d-features/                       ← WS-D clone (branch: mg-genie-wb-ws-d-features)
 
-~/genieCodeWorkshop/                      ← orchestration hub (status files, architecture docs)
+/Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/  ← orchestration hub (status files, architecture docs)
                                             stays on scaffold branch, shared read/write for status
 ```
 
@@ -37,8 +37,8 @@ Downstream workstreams branch from their upstream's pushed branch, giving them
 access to all upstream code without requiring merges during execution:
 
 ```
-lesson/02-vibe-infra (base)
-    └→ mg-genie-wb-ws-a-pipeline (WS-A branches from base)
+mg-genie-L02-wanderbricks-scaffold (base)
+    └→ mg-genie-wb-ws-a-pipeline (WS-A branches from scaffold)
         ├→ mg-genie-wb-ws-b-metrics (WS-B branches from WS-A)
         │       └→ mg-genie-wb-ws-c-genie-agent (WS-C branches from WS-B)
         └→ mg-genie-wb-ws-d-features (WS-D branches from WS-A, parallel with B)
@@ -54,7 +54,7 @@ This means:
 | Task | Title | Cron | Gates On | Clone Path | Branches From |
 | --- | --- | --- | --- | --- | --- |
 | WS-0 | WanderBricks WS-0 Scaffold | N/A (complete) | None | orchestration hub | `lesson/02-vibe-infra` |
-| WS-A | WanderBricks WS-A Pipeline | `0 */3 * * * ?` | WS-0 COMPLETE | `a-pipeline/` | `lesson/02-vibe-infra` |
+| WS-A | WanderBricks WS-A Pipeline | `0 */3 * * * ?` | WS-0 COMPLETE | `a-pipeline/` | `mg-genie-L02-wanderbricks-scaffold` |
 | WS-B | WanderBricks WS-B Metrics | `0 */15 * * * ?` | WS-A COMPLETE | `b-metrics/` | `mg-genie-wb-ws-a-pipeline` |
 | WS-C | WanderBricks WS-C Genie Agent | `0 */15 * * * ?` | WS-B COMPLETE | `c-genie-agent/` | `mg-genie-wb-ws-b-metrics` |
 | WS-D | WanderBricks WS-D Features | `0 */15 * * * ?` | WS-A COMPLETE | `d-features/` | `mg-genie-wb-ws-a-pipeline` |
@@ -91,7 +91,7 @@ T+next 15: WS-FINAL: All gates pass → writes summary, PR descriptions, merge i
 - **Branches:** `mg-genie-wb-ws-{x}-{description}`
 - **Status files:** `workstream-{x}-status.md` (in orchestration hub)
 - **Prompt files:** `ws-{x}-{description}-prompt.md`
-- **Clone paths:** `~/genie-code-workstream-orchestration/<project>/<ws-letter>-<description>/`
+- **Clone paths:** `/Workspace/Users/<username>/genie-code-workstream-orchestration/<project>/<ws-letter>-<description>/`
 
 ## Prompt Files
 
@@ -140,10 +140,10 @@ T+next 15: WS-FINAL: All gates pass → writes summary, PR descriptions, merge i
 The branch stack means PRs merge cleanly in this order:
 
 ```
-1. mg-genie-wb-ws-a-pipeline      → lesson/02-vibe-infra  (base changes only)
-2. mg-genie-wb-ws-b-metrics       → lesson/02-vibe-infra  (B's changes only, A already merged)
-3. mg-genie-wb-ws-d-features      → lesson/02-vibe-infra  (D's changes only, A already merged)
-4. mg-genie-wb-ws-c-genie-agent   → lesson/02-vibe-infra  (C's changes only, B already merged)
+1. mg-genie-wb-ws-a-pipeline      → mg-genie-L02-wanderbricks-scaffold  (base changes only)
+2. mg-genie-wb-ws-b-metrics       → mg-genie-L02-wanderbricks-scaffold  (B's changes only, A already merged)
+3. mg-genie-wb-ws-d-features      → mg-genie-L02-wanderbricks-scaffold  (D's changes only, A already merged)
+4. mg-genie-wb-ws-c-genie-agent   → mg-genie-L02-wanderbricks-scaffold  (C's changes only, B already merged)
 ```
 
 Each PR shows ONLY that workstream's delta (not its upstream's code), because the
@@ -153,6 +153,6 @@ upstream is already in the target branch by the time the PR is reviewed.
 
 1. Delete `~/genie-code-workstream-orchestration/genieCodeWorkshop/` (clones are disposable)
 2. Pause/delete all scheduled tasks
-3. Deploy full bundle from `lesson/02-vibe-infra` to confirm complete resource DAG
-4. This state becomes the `lesson/03-vibe-ai` branch cut point
+3. Deploy full bundle from `mg-genie-L02-wanderbricks-scaffold` to confirm complete resource DAG
+4. Merge scaffold → `lesson/02-vibe-infra`, then cut `lesson/03-vibe-ai` from that state
 5. Begin Vibe Session 2 workstreams (Vector Search)
