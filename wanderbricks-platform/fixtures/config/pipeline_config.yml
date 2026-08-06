@@ -1,0 +1,102 @@
+# WanderBricks Pipeline Configuration
+# Source: samples.wanderbricks (16 tables)
+# Target: hls_fde_dev.dev_matthew_giglia_wanderbricks_ai (dev)
+
+source:
+  catalog: samples
+  schema: wanderbricks
+
+tables:
+  - name: properties
+    pk: property_id
+    description: "Rental listings"
+    notable_columns: [property_id, host_id, destination_id, base_price, property_type, bedrooms, bathrooms]
+
+  - name: bookings
+    pk: booking_id
+    description: "Reservations with check-in/check-out and status"
+    notable_columns: [booking_id, user_id, property_id, check_in, check_out, total_amount, status, created_at]
+
+  - name: reviews
+    pk: review_id
+    description: "Guest reviews — filter is_deleted=false in silver"
+    notable_columns: [review_id, booking_id, property_id, user_id, rating, is_deleted, created_at]
+
+  - name: users
+    pk: user_id
+    description: "Guest profiles"
+    notable_columns: [user_id, name, email, country, user_type, is_business, created_at]
+
+  - name: hosts
+    pk: host_id
+    description: "Property owner profiles"
+    notable_columns: [host_id, name, email, is_verified, is_active, rating]
+
+  - name: destinations
+    pk: destination_id
+    description: "City/location data — join with countries on country name"
+    notable_columns: [destination_id, destination, country, state_or_province]
+
+  - name: payments
+    pk: payment_id
+    description: "Payment records linked to bookings"
+    notable_columns: [payment_id, booking_id, amount, payment_method, status, payment_date]
+
+  - name: countries
+    pk: country
+    description: "Country reference with continent"
+    notable_columns: [country, country_code, continent]
+
+  - name: amenities
+    pk: amenity_id
+    description: "Amenity catalog with categories"
+    notable_columns: [amenity_id, name, category, icon]
+
+  - name: property_amenities
+    pk: [property_id, amenity_id]
+    description: "Junction: which amenities each property has"
+    notable_columns: [property_id, amenity_id]
+
+  - name: property_images
+    pk: image_id
+    description: "Property images with sequence ordering"
+    notable_columns: [image_id, property_id, url, sequence, is_primary]
+
+  - name: booking_updates
+    pk: booking_update_id
+    description: "Booking status change history — cancelled_by_host used for host cancellation rate"
+    notable_columns: [booking_update_id, booking_id, property_id, status, created_at]
+
+  - name: page_views
+    pk: view_id
+    description: "Page view analytics"
+    notable_columns: [view_id, user_id, property_id, device_type, referrer, timestamp]
+
+  - name: employees
+    pk: employee_id
+    description: "Internal staff / host employees"
+    notable_columns: [employee_id, host_id, name, role, is_currently_employed]
+
+  - name: customer_support_logs
+    pk: ticket_id
+    description: "Support tickets with nested messages array<struct>"
+    notable_columns: [ticket_id, user_id, messages, support_agent_id, created_at]
+
+  - name: clickstream
+    pk: null
+    description: "User behavior events with nested metadata struct"
+    notable_columns: [user_id, property_id, event, metadata.device, metadata.referrer, timestamp]
+
+analytics_handbook:
+  gbv_filter: "status = 'confirmed'"
+  adr_filter: "status IN ('confirmed', 'completed')"
+  gss_weights:
+    30d: 3.0
+    90d: 2.0
+    365d: 1.0
+    older: 0.5
+  net_revenue_pct: 0.15
+  superhost_criteria:
+    min_avg_rating: 4.5
+    min_completed_bookings_90d: 10
+    max_cancellation_rate: 0.02
