@@ -30,6 +30,10 @@ Branch from: mg-genie-wb-ws-b-metrics (branch stacking — gives access to WS-A 
 
 == CONTEXT ==
 
+Before starting work, review the current state of the source code in the working clone.
+Read the README, existing resources/, and src/ structure to understand what the project
+already has and where it is currently.
+
 Read these files:
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-b-status.md (read "Notes for Downstream Sessions" for metric view details and sample questions)
@@ -46,6 +50,10 @@ Read these files:
    d. Create new branch mg-genie-wb-ws-c-genie-agent from mg-genie-wb-ws-b-metrics.
    e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-c-genie-agent (resume).
    f. ALL code work in this clone. Status files in orchestration hub.
+
+IMPORTANT: When in doubt about the best way to implement something, use your available
+tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
+before proceeding. Always prefer modern APIs and patterns.
 
 8. Create the Genie Space resource:
 

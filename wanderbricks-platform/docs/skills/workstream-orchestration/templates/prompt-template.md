@@ -35,6 +35,10 @@ Read these files:
 - <upstream-status-file> ("Notes for Downstream" section)
 - <any config/convention files relevant to this workstream>
 
+Also: Review the current state of the source code in the working clone to understand
+what the project does and where it is currently. Read key files (README, existing
+resources, src/ structure) before writing new code.
+
 ### EXECUTE
 
 1. Set own status to IN_PROGRESS, set started_at.
@@ -51,6 +55,9 @@ Read these files:
    - Be specific about WHAT (table names, resource types, directories)
    - Reference conventions from PROJECT_MEMORY.md
    - Let the agent decide HOW to implement
+   - When in doubt about the best way to implement something, use your available
+     tools (docSearch, spark APIs, skill files) to check the latest Databricks
+     best practices before proceeding.
 
 4. databricks bundle validate --target dev. Fix errors.
 5. databricks bundle deploy --target dev.

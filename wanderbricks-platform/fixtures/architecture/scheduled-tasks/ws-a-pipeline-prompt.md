@@ -30,6 +30,10 @@ Branch from: lesson/02-vibe-infra
 
 == CONTEXT ==
 
+Before starting work, review the current state of the source code in the working clone.
+Read the README, existing resources/, and src/ structure to understand what the project
+already has and where it is currently.
+
 Read these files:
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
 - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-0-status.md (read "Notes for Downstream Sessions")
@@ -54,6 +58,10 @@ Also explore the source data:
    d. Create new branch mg-genie-wb-ws-a-pipeline from lesson/02-vibe-infra.
    e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume prior run).
    f. ALL code work below happens in this clone. Status files are ALWAYS in the orchestration hub.
+
+IMPORTANT: When in doubt about the best way to implement something, use your available
+tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
+before proceeding. Always prefer modern APIs and patterns.
 
 9. Build the pipeline:
 

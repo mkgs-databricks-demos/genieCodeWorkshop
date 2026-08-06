@@ -48,6 +48,9 @@ Read these files for full project context:
 - Include upstream status files (they contain "Notes for Downstream Sessions")
 - Include relevant config files (pipeline config, schema definitions)
 - The session starts with ZERO context. If it's not listed here, it won't be read.
+- ALWAYS include an instruction to review the current source state (read README,
+  existing resources, src/ directory) to understand what the project does and
+  where it is before writing new code.
 
 ### Section 3: EXECUTE
 
@@ -85,6 +88,9 @@ that it blocks the agent's problem-solving.
 - Reference existing conventions ("follow the pattern in PROJECT_MEMORY.md")
 - Include bundle validate + deploy (catches errors early)
 - 5-15 execution steps is the sweet spot
+- ALWAYS include: "When in doubt about the best way to implement something,
+  use your available tools (docSearch, spark APIs, skill files) to check the
+  latest Databricks best practices before proceeding."
 
 ### Section 4: VALIDATE
 
