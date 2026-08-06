@@ -20,6 +20,8 @@ targets:
   dev:
     default: true
     mode: development
+    presets:
+      source_linked_deployment: false
     variables:
       catalog: hls_fde_dev
       schema: wanderbricks_ai
