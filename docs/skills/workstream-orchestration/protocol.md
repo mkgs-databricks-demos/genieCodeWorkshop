@@ -73,6 +73,22 @@ Separate clones solve this completely:
 - No race conditions on git operations
 - True parallel execution with full isolation
 
+### Git Isolation Rule (MANDATORY)
+
+**The orchestration hub git folder is READ-ONLY for git operations.** No workstream
+may ever run `runGit checkout`, `runGit commit_and_push`, or any branch-switching
+operation on the orchestration hub path.
+
+**Allowed on orchestration hub:** `readAssetById`, `editAsset` (for status files)
+**Forbidden on orchestration hub:** ANY `runGit` operation
+
+**Allowed on clone paths:** ALL git operations (clone, checkout, commit, push, pull)
+
+Every prompt must include a guard rule:
+> Before any runGit call, verify repoPath starts with the clone base path
+> (e.g., `/Workspace/Users/.../genie-code-workstream-orchestration/`).
+> If it starts with the orchestration hub path, STOP — you are making an error.
+
 ### Clone Lifecycle
 
 1. **Created** on first run of a workstream (idempotent — if exists, reuse)
@@ -162,6 +178,63 @@ Fire → Read own status → COMPLETE → "Already complete." → Exit
 This means all tasks can stay active indefinitely without harm. But best practice
 is to pause them after WS-FINAL completes (less noise in the automations panel).
 
+### Self-Pause (Single-Fire Guard)
+
+A workstream MUST deactivate its own cron immediately after setting IN_PROGRESS.
+This prevents re-firing while work is in progress (which could read stale state
+from a prior run and incorrectly mark COMPLETE).
+
+**API Pattern:**
+
+```python
+from databricks.sdk import WorkspaceClient
+w = WorkspaceClient()
+me = w.current_user.me()
+
+# 1. List all scheduled insights
+resp = w.api_client.do(
+    "GET", "/api/2.0/alerts-internal/scheduled-insights-list/GENIE_CODE",
+    query={"parent_asset_name": f"users/{me.id}"}
+)
+
+# 2. Find your own task by display_name
+for task in resp.get("scheduled_insights", []):
+    if task.get("display_name") == "<YOUR TASK TITLE>":
+        auto_id = task["name"].split("/")[-1]
+
+        # 3. PATCH to set paused=true
+        w.api_client.do(
+            "PATCH",
+            f"/api/2.0/alerts-internal/scheduled-insights/{auto_id}",
+            body={
+                "scheduled_insight": {
+                    "name": task["name"],
+                    "schedule": {"paused": True}
+                },
+                "etag": task["etag"],
+                "update_mask": "schedule.paused"
+            }
+        )
+        break
+```
+
+**Key details:**
+- `task["name"]` is the full resource path: `genie_code/users/{user_id}/scheduled_insights/{automation_id}`
+- `etag` is required (optimistic concurrency) — get it from the list response
+- `update_mask` tells the API which fields to update — without it, the call fails
+- The body wraps the mutation inside `scheduled_insight` with `etag` and `update_mask` at the top level
+- If self-pause fails, the IN_PROGRESS gate check provides backup protection
+
+**Delete pattern** (for manual cleanup):
+
+```python
+w.api_client.do(
+    "DELETE",
+    f"/api/2.0/alerts-internal/scheduled-insights/{auto_id}",
+    body={"name": task["name"]}  # full resource path required in body
+)
+```
+
 ## WS-FINAL: The Mandatory Bookend
 
 ### Rule: Every Orchestration MUST Have a WS-FINAL
@@ -214,21 +287,22 @@ can still edit files at the orchestration hub path.
 
 ### Commit Flow for Status Updates
 
+**CRITICAL: NEVER run runGit on the orchestration hub.** The hub is a shared git
+folder. Running checkout/commit/push on it switches branches and breaks all other
+workstreams that read from it.
+
+**Correct pattern:**
+
 ```
 1. editAsset → write status file content (workspace path in orchestration hub)
-2. runGit(commit_and_push) on orchestration hub → persists status to remote
+2. Status is immediately readable by all sessions (workspace layer, independent of git)
+3. Status files are committed to git ONLY at completion, from the workstream's own CLONE
 ```
 
-OR (simpler, if git commit isn't critical):
-
-```
-1. editAsset → write status file content (persists in workspace immediately)
-2. Skip git commit of status — workspace file is readable by all sessions
-```
-
-The second approach is simpler and avoids multi-session commit races on the hub.
-Status files are readable the moment they're saved to the workspace, regardless
-of git state. Git commit is only needed for long-term persistence and audit trail.
+Status files are readable the instant they are saved via editAsset, regardless of
+git state. The workspace file layer is independent of which branch is checked out.
+Git commit of status files happens as part of the workstream's final commit+push
+from its own clone — never from the orchestration hub directly.
 
 ### Recommended Pattern
 

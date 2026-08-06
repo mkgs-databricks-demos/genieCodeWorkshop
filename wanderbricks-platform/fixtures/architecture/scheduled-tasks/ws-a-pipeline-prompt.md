@@ -13,7 +13,7 @@ You are executing Workstream A of the WanderBricks Platform: building the full S
 Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
 Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline/
 Git remote: (same repo as orchestration hub)
-Branch from: lesson/02-vibe-infra
+Branch from: mg-genie-L02-wanderbricks-scaffold
 
 == GATE CHECK ==
 
@@ -51,19 +51,28 @@ Also explore the source data:
 
 7. Update workstream-a-status.md (in the ORCHESTRATION HUB path above) to status: IN_PROGRESS, set started_at.
 
-7b. SINGLE-FIRE GUARD: After setting IN_PROGRESS, ensure this task cannot re-fire
-    while you work. Find the scheduled insight named "WanderBricks WS-A Pipeline"
-    in the alerts-internal API and mark its schedule as paused=true (see protocol.md
-    for the exact API pattern). Without this step, the next cron cycle may read
-    stale tables from a prior run and incorrectly mark the workstream COMPLETE.
+7b. SINGLE-FIRE GUARD: Deactivate your own cron immediately.
+    List: GET alerts-internal/scheduled-insights-list/GENIE_CODE?parent_asset_name=users/{id}
+    Find: display_name == "WanderBricks WS-A Pipeline"
+    PATCH: alerts-internal/scheduled-insights/{auto_id} with body:
+      {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
+       "etag": <etag>, "update_mask": "schedule.paused"}
+    If fails, continue (IN_PROGRESS gate is backup).
+
+7c. GIT FOLDER ISOLATION (CRITICAL):
+    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ = SHARED git folder.
+      NEVER run runGit checkout/commit/push on it.
+    - Status files: use workspace file tools only (no git).
+    - ALL git ops: ONLY in WORKING CLONE path below.
+    - Guard: repoPath MUST start with /Workspace/.../genie-code-workstream-orchestration/
 
 8. SET UP WORKING CLONE:
-   a. Check if the working clone path exists (listed above).
-   b. If NOT: Clone the git repo to that path (same remote URL as the orchestration hub repo).
-   c. In the clone: checkout branch lesson/02-vibe-infra, then pull latest.
-   d. Create new branch mg-genie-wb-ws-a-pipeline from lesson/02-vibe-infra.
-   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume prior run).
-   f. ALL code work below happens in this clone. Status files are ALWAYS in the orchestration hub.
+   Path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline
+   a. If NOT exists: runGit clone (url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git, path: above, provider: gitHub)
+   b. In CLONE: checkout mg-genie-L02-wanderbricks-scaffold, pull latest.
+   c. Create branch mg-genie-wb-ws-a-pipeline.
+   d. If EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume).
+   e. ALL code/git work in clone. NEVER in orchestration hub.
 
 IMPORTANT: When in doubt about the best way to implement something, use your available
 tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices

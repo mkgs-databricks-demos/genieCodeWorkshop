@@ -42,14 +42,30 @@ resources, src/ structure) before writing new code.
 ### EXECUTE
 
 1. Set own status to IN_PROGRESS, set started_at.
+   Use workspace file tools (editAsset) — do NOT use git for status files.
+
+1b. SINGLE-FIRE GUARD: Deactivate your own cron schedule immediately.
+    List scheduled insights (GET alerts-internal/scheduled-insights-list/GENIE_CODE,
+    query: parent_asset_name=users/{your_id}). Find entry by display_name.
+    Extract automation_id from name field (last path segment). Then PATCH:
+    body: {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
+    "etag": <etag>, "update_mask": "schedule.paused"}.
+    If this fails, continue — IN_PROGRESS gate provides backup.
+
+1c. GIT FOLDER ISOLATION (CRITICAL):
+    - The orchestration hub is a SHARED git folder. NEVER run runGit on it.
+    - Status files are edited via workspace file tools only (no git needed).
+    - ALL git operations (clone, checkout, commit, push) go to the WORKING CLONE.
+    - Before any runGit call, verify repoPath starts with the clone base path.
 
 2. SET UP WORKING CLONE:
    a. Check if working clone path exists.
-   b. If NOT: Clone repo to that path.
-   c. Checkout <upstream-branch>, pull latest.
+   b. If NOT: runGit clone (url: <remote>, path: <clone-path>, provider: gitHub).
+   c. In CLONE: checkout <upstream-branch>, pull latest.
    d. Create new branch <own-branch> from <upstream-branch>.
    e. If EXISTS: checkout <own-branch> (resume).
-   f. ALL code work in clone. Status files in orchestration hub.
+   f. ALL code work in clone via editAsset on clone path files.
+   g. ALL git commits use repoPath = clone path. NEVER the orchestration hub.
 
 3. <Step-by-step work description>
    - Be specific about WHAT (table names, resource types, directories)
@@ -75,5 +91,6 @@ resources, src/ structure) before writing new code.
 3. Add "Notes for Downstream Sessions" with context for next workstream.
 4. Write session summary to fixtures/sessions/YYYY-MM-DD_ws-<x>-<description>.md
 5. Commit and push code changes (working clone).
-6. Commit and push status update (orchestration hub).
+6. Status files are already saved (editAsset writes to workspace immediately).
+   They will be committed as part of a human-triggered batch commit on the hub.
 ```

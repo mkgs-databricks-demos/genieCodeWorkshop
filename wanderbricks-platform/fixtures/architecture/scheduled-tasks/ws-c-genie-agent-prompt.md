@@ -41,21 +41,31 @@ Read these files:
 
 == EXECUTE ==
 
-6. Update workstream-c-status.md (in ORCHESTRATION HUB) to status: IN_PROGRESS, set started_at.
+6. Update workstream-c-status.md to IN_PROGRESS, set started_at.
+   Use workspace file tools only. Do NOT use git for status files.
 
-6b. SINGLE-FIRE GUARD: After setting IN_PROGRESS, ensure this task cannot re-fire
-    while you work. Find the scheduled insight named "WanderBricks WS-C Genie Agent"
-    in the alerts-internal API and mark its schedule as paused=true (see protocol.md
-    for the exact API pattern). Without this step, the next cron cycle may read
-    stale artifacts from a prior run and incorrectly mark the workstream COMPLETE.
+6b. SINGLE-FIRE GUARD: Deactivate your own cron immediately.
+    List: GET alerts-internal/scheduled-insights-list/GENIE_CODE?parent_asset_name=users/{id}
+    Find: display_name == "WanderBricks WS-C Genie Agent"
+    PATCH: alerts-internal/scheduled-insights/{auto_id} with body:
+      {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
+       "etag": <etag>, "update_mask": "schedule.paused"}
+    If fails, continue (IN_PROGRESS gate is backup).
+
+6c. GIT FOLDER ISOLATION (CRITICAL):
+    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ = SHARED git folder.
+      NEVER run runGit checkout/commit/push on it.
+    - Status files: use workspace file tools only (no git).
+    - ALL git ops: ONLY in WORKING CLONE path below.
+    - Guard: repoPath MUST start with /Workspace/.../genie-code-workstream-orchestration/
 
 7. SET UP WORKING CLONE:
-   a. Check if the working clone path exists.
-   b. If NOT: Clone the git repo to that path.
-   c. In the clone: checkout mg-genie-wb-ws-b-metrics (upstream), pull latest.
-   d. Create new branch mg-genie-wb-ws-c-genie-agent from mg-genie-wb-ws-b-metrics.
-   e. If clone ALREADY EXISTS: checkout mg-genie-wb-ws-c-genie-agent (resume).
-   f. ALL code work in this clone. Status files in orchestration hub.
+   Path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/c-genie-agent
+   a. If NOT exists: runGit clone (url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git, path: above, provider: gitHub)
+   b. In CLONE: checkout mg-genie-wb-ws-b-metrics (upstream), pull latest.
+   c. Create branch mg-genie-wb-ws-c-genie-agent.
+   d. If EXISTS: checkout mg-genie-wb-ws-c-genie-agent (resume).
+   e. ALL code/git work in clone. NEVER in orchestration hub.
 
 IMPORTANT: When in doubt about the best way to implement something, use your available
 tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
