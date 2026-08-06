@@ -1,7 +1,7 @@
 ---
-status: IN_PROGRESS
-branch: mg-genie-wb-ws-b-metrics
-started_at: 2026-08-06T20:00:00Z
+status: NOT_STARTED
+branch:
+started_at:
 completed_at:
 output_tables: []
 validation: PENDING

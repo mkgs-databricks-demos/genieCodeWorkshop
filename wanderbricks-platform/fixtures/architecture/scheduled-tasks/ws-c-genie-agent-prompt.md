@@ -1,4 +1,4 @@
-# Scheduled Task Prompt — Workstream C: Genie Agent (Space)
+# Scheduled Task Prompt — Workstream C: Genie Agent (AI/BI Space)
 
 ## scheduleAgentTool Parameters
 
@@ -8,139 +8,74 @@
 ## Instructions (copy verbatim into scheduleAgentTool)
 
 ```
-You are executing Workstream C of the WanderBricks Platform: creating a Genie Space (AI agent) over the gold layer and metric views.
+You are executing Workstream C of the WanderBricks Platform: creating a Genie AI/BI space over the gold/metric layer.
 
-Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/c-genie-agent/
-Git remote: (same repo as orchestration hub)
-Branch from: mg-genie-wb-ws-b-metrics (branch stacking — gives access to WS-A + WS-B code)
+Bundle root (ALL work here): /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Push clone (git sync only): /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/push-clone/
+Git remote: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git
+Branch name: mg-genie-wb-ws-c-genie-agent
+Upstream branch: mg-genie-wb-ws-b-metrics
 
 == GATE CHECK ==
 
-1. Read /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-c-status.md
-2. Parse YAML frontmatter. If status is "COMPLETE": respond "WS-C already complete." and stop.
+1. Read /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-c-status.md
+2. If status is "COMPLETE": respond "WS-C already complete." and stop.
+3. If status is "IN_PROGRESS": respond "WS-C in progress elsewhere. Exiting." and stop.
 
-3. Read /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-b-status.md
-4. Parse YAML frontmatter. If status != "COMPLETE":
-   - Respond "Upstream WS-B not complete. Waiting." and stop.
+4. Read /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-b-status.md
+5. If status != "COMPLETE": respond "Upstream WS-B not complete. Waiting." and stop.
 
-5. Verify metric views exist:
-   SHOW VIEWS IN hls_fde_dev.dev_matthew_giglia_wanderbricks_ai
-   - If no metric views found: respond "Metric views not created. Waiting." and stop.
+6. Verify metric views exist:
+   SELECT COUNT(*) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_revenue_metrics
+   - If doesn\'t exist or 0 rows: respond "Metric views not populated. Waiting." and stop.
 
 == CONTEXT ==
 
-Before starting work, review the current state of the source code in the working clone.
-Read the README, existing resources/, and src/ structure to understand what the project
-already has and where it is currently.
-
 Read these files:
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-b-status.md (read "Notes for Downstream Sessions" for metric view details and sample questions)
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/reference/wanderbricks-analytics-handbook.md
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-b-status.md ("Notes for Downstream Sessions")
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/reference/wanderbricks-analytics-handbook.md
 
 == EXECUTE ==
 
-6. Update workstream-c-status.md to IN_PROGRESS, set started_at.
-   Use workspace file tools only. Do NOT use git for status files.
+7. Set workstream-c-status.md to IN_PROGRESS with started_at.
 
-6b. SINGLE-FIRE GUARD: Deactivate your own cron immediately.
-    List: GET alerts-internal/scheduled-insights-list/GENIE_CODE?parent_asset_name=users/{id}
-    Find: display_name == "WanderBricks WS-C Genie Agent"
-    PATCH: alerts-internal/scheduled-insights/{auto_id} with body:
-      {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
-       "etag": <etag>, "update_mask": "schedule.paused"}
-    If fails, continue (IN_PROGRESS gate is backup).
-6d. BUNDLE-FIRST RULE (CRITICAL):
-    - ALL resources (pipelines, jobs, schemas, volumes) MUST be defined in
-      resources/*.yml and deployed via `databricks bundle deploy --target dev`.
-    - NEVER hardcode catalog/schema names. Use ${var.catalog}, ${var.schema},
-      ${resources.schemas.wanderbricks_schema.catalog_name}, ${resources.schemas.wanderbricks_schema.name}.
-    - NEVER create resources via SDK calls or raw SQL outside bundle deploy.
-    - `databricks bundle validate --target dev` MUST pass before deploying.
-    - A resource without the bundle dev prefix is INCORRECT even if it runs.
+8. SINGLE-FIRE GUARD: Self-pause via alerts-internal API (same pattern as other workstreams).
 
+9. WORKING DIRECTORY — ALL WORK IN BUNDLE ROOT.
+   Do NOT run any runGit operations until GIT SYNC at the end.
 
-6c. GIT FOLDER ISOLATION (CRITICAL):
-    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ = SHARED git folder.
-      NEVER run runGit checkout/commit/push on it.
-    - Status files: use workspace file tools only (no git).
-    - ALL git ops: ONLY in WORKING CLONE path below.
-    - Guard: repoPath MUST start with /Workspace/.../genie-code-workstream-orchestration/
+9b. BUNDLE-FIRST RULE: All resources in YAML, no hardcoded names, validate before deploy.
 
-7. SET UP WORKING CLONE:
-   Path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/c-genie-agent
-   a. If NOT exists: runGit clone (url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git, path: above, provider: gitHub)
-   b. In CLONE: checkout mg-genie-wb-ws-b-metrics (upstream), pull latest.
-   c. Create branch mg-genie-wb-ws-c-genie-agent.
-   d. If EXISTS: checkout mg-genie-wb-ws-c-genie-agent (resume).
-   e. ALL code/git work in clone. NEVER in orchestration hub.
+10. Create the Genie AI/BI Space:
 
-IMPORTANT: When in doubt about the best way to implement something, use your available
-tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
-before proceeding. Always prefer modern APIs and patterns.
+    a. Create resources/wanderbricks_genie.yml:
+       - Genie space configuration pointing to gold tables and metric views
+       - Include all gold_* tables and mv_* metric views
+       - Add natural language instructions for the agent
 
-8. Create the Genie Space resource:
+    b. Add instructions for the Genie space:
+       - Define sample questions users might ask
+       - Describe each table/view purpose
+       - Include metric calculation context from Analytics Handbook
 
-   Create resources/wanderbricks_genie_space.yml:
+    c. Deploy: databricks bundle validate + deploy --target dev
 
-   The Genie Space should:
-   - Name: "WanderBricks Intelligence"
-   - Description: "AI-powered analytics agent for the WanderBricks vacation rental platform. Ask questions about revenue, occupancy, guest satisfaction, and host performance."
-   - Include ALL gold tables and metric views as data sources
-   - Have comprehensive instructions that include:
-     * Business context (WanderBricks is a vacation rental platform)
-     * Metric definitions (from Analytics Handbook — especially commission rate, GSS formula, superhost criteria)
-     * Table relationships and join keys
-     * Common query patterns
-     * Naming conventions (what each table/view contains)
-   - Sample questions covering each domain:
-     * Revenue: "What was the total GBV last month?" "Which destinations generate the most net revenue?"
-     * Occupancy: "What's the platform-wide occupancy rate?" "Which properties have the highest ADR?"
-     * Satisfaction: "Show me properties with GSS below 4.0" "What's our review response rate?"
-     * Host: "How many superhosts do we have?" "Which hosts are at risk of losing superhost status?"
-     * Cross-domain: "Show me high-revenue properties with low satisfaction scores"
+== VALIDATE ==
 
-   Resource YAML structure:
-   ```yaml
-   resources:
-     quality_monitors:  # or genie_spaces: depending on bundle support
-       wanderbricks_genie:
-         display_name: "WanderBricks Intelligence"
-         description: "..."
-         catalog_name: ${resources.schemas.wanderbricks_schema.catalog_name}
-         schema_name: ${resources.schemas.wanderbricks_schema.name}
-         table_identifiers:
-           - gold_revenue_daily
-           - gold_occupancy_monthly
-           - gold_guest_satisfaction
-           - gold_host_performance
-           - gold_property_summary
-           - mv_revenue_metrics (if exists)
-           - mv_occupancy_metrics (if exists)
-           - mv_guest_satisfaction (if exists)
-           - mv_host_performance (if exists)
-         instructions: |
-           ...
-         sample_questions:
-           - ...
-   ```
+11. Verify the Genie space is accessible and can answer sample queries.
 
-   NOTE: If Genie spaces are not supported as bundle resources in the current CLI version, create the space via the Databricks SDK in a setup notebook (src/notebooks/create_genie_space.py) and add it as a job task. Document the space ID in the status file.
+== COMPLETE ==
 
-9. VALIDATE:
-   - Run: databricks bundle validate --target dev
-   - Run: databricks bundle deploy --target dev (or run the setup notebook)
-   - Verify the Genie space is accessible
-   - Test at least 2 sample questions manually (describe expected vs actual)
+12. Update fixtures/handoffs/workstream-c-status.md: COMPLETE with output details.
 
-10. COMPLETE:
-    - Update fixtures/handoffs/workstream-c-status.md:
-      - status: COMPLETE, completed_at, output_tables (Genie space name/ID), validation: PASSED
-      - "What Was Built" section
-      - "Notes for Downstream Sessions": Genie space ID, how to access, what questions it handles
-    - Write session summary to fixtures/sessions/
-    - Commit and push branch
+== GIT SYNC (one-way, end of session) ==
 
-IMPORTANT: Never commit to main or lesson branches directly. The Genie Space instructions should be detailed enough that someone unfamiliar with the data can ask meaningful questions and get correct answers.
+13. Ensure push clone exists (runGit clone if needed).
+14. In push clone: checkout mg-genie-wb-ws-b-metrics, pull latest.
+15. Create/checkout branch mg-genie-wb-ws-c-genie-agent.
+16. Copy YOUR files: resources/wanderbricks_genie.yml, status file, session file.
+17. Commit + push from push clone.
+
+IMPORTANT: Never commit to main or lesson branches. Push clone is WRITE-ONLY.
 ```

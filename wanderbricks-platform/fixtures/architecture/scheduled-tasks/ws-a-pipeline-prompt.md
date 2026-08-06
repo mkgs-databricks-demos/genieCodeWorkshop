@@ -10,18 +10,19 @@
 ```
 You are executing Workstream A of the WanderBricks Platform: building the full Spark Declarative Pipeline (bronze → silver → gold).
 
-Orchestration hub (status files): /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
-Working clone: /Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline/
-Git remote: (same repo as orchestration hub)
-Branch from: mg-genie-L02-wanderbricks-scaffold
+Bundle root (ALL work here): /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/
+Push clone (git sync only): /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/push-clone/
+Git remote: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git
+Branch name: mg-genie-wb-ws-a-pipeline
+Upstream branch: mg-genie-L02-wanderbricks-scaffold
 
 == GATE CHECK ==
 
-1. Read /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-a-status.md
+1. Read /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-a-status.md
 2. Parse YAML frontmatter. If status is "COMPLETE": respond "WS-A already complete." and stop.
 3. If status is "IN_PROGRESS": check if gold tables exist with rows. If yes, proceed to validation (step 10). If no, respond "WS-A in progress elsewhere. Exiting." and stop.
 
-4. Read /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-0-status.md
+4. Read /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-0-status.md
 5. Parse YAML frontmatter. If status != "COMPLETE":
    - Respond "Upstream WS-0 not complete. Waiting." and stop.
 
@@ -30,15 +31,11 @@ Branch from: mg-genie-L02-wanderbricks-scaffold
 
 == CONTEXT ==
 
-Before starting work, review the current state of the source code in the working clone.
-Read the README, existing resources/, and src/ structure to understand what the project
-already has and where it is currently.
-
-Read these files:
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-0-status.md (read "Notes for Downstream Sessions")
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/reference/wanderbricks-analytics-handbook.md
-- /Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/conventions/genie-code-best-practices.md (section: Spark Declarative Pipeline Conventions)
+Read these files from the bundle root:
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/PROJECT_MEMORY.md
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/wanderbricks-platform/fixtures/handoffs/workstream-0-status.md (read "Notes for Downstream Sessions")
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/reference/wanderbricks-analytics-handbook.md
+- /Workspace/Users/matthew.giglia@databricks.com/genieCodeWorkshop/docs/conventions/genie-code-best-practices.md (section: Spark Declarative Pipeline Conventions)
 
 Also explore the source data:
 - SELECT * FROM samples.wanderbricks.properties LIMIT 5
@@ -49,16 +46,22 @@ Also explore the source data:
 
 == EXECUTE ==
 
-7. Update workstream-a-status.md (in the ORCHESTRATION HUB path above) to status: IN_PROGRESS, set started_at.
+7. Set workstream-a-status.md to IN_PROGRESS with started_at timestamp.
 
-7b. SINGLE-FIRE GUARD: Deactivate your own cron immediately.
-    List: GET alerts-internal/scheduled-insights-list/GENIE_CODE?parent_asset_name=users/{id}
-    Find: display_name == "WanderBricks WS-A Pipeline"
-    PATCH: alerts-internal/scheduled-insights/{auto_id} with body:
-      {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
-       "etag": <etag>, "update_mask": "schedule.paused"}
-    If fails, continue (IN_PROGRESS gate is backup).
-7d. BUNDLE-FIRST RULE (CRITICAL):
+8. SINGLE-FIRE GUARD: Deactivate your own cron immediately.
+   List: GET alerts-internal/scheduled-insights-list/GENIE_CODE?parent_asset_name=users/{id}
+   Find: display_name == "WanderBricks WS-A Pipeline"
+   PATCH: alerts-internal/scheduled-insights/{auto_id} with body:
+     {"scheduled_insight": {"name": <full_name>, "schedule": {"paused": true}},
+      "etag": <etag>, "update_mask": "schedule.paused"}
+   If fails, continue (IN_PROGRESS gate is backup).
+
+9. WORKING DIRECTORY — ALL WORK IN BUNDLE ROOT:
+   All code, resources, and config are created/edited via editAsset in the bundle root.
+   All deploys use runDatabricksCli (bundle validate/deploy/run) in the bundle root.
+   Do NOT run any runGit operations until the GIT SYNC step at the end.
+
+9b. BUNDLE-FIRST RULE (CRITICAL):
     - ALL resources (pipelines, jobs, schemas, volumes) MUST be defined in
       resources/*.yml and deployed via `databricks bundle deploy --target dev`.
     - NEVER hardcode catalog/schema names. Use ${var.catalog}, ${var.schema},
@@ -67,27 +70,11 @@ Also explore the source data:
     - `databricks bundle validate --target dev` MUST pass before deploying.
     - A resource without the bundle dev prefix is INCORRECT even if it runs.
 
-
-7c. GIT FOLDER ISOLATION (CRITICAL):
-    - /Users/matthew.giglia@databricks.com/genieCodeWorkshop/ = SHARED git folder.
-      NEVER run runGit checkout/commit/push on it.
-    - Status files: use workspace file tools only (no git).
-    - ALL git ops: ONLY in WORKING CLONE path below.
-    - Guard: repoPath MUST start with /Workspace/.../genie-code-workstream-orchestration/
-
-8. SET UP WORKING CLONE:
-   Path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/a-pipeline
-   a. If NOT exists: runGit clone (url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git, path: above, provider: gitHub)
-   b. In CLONE: checkout mg-genie-L02-wanderbricks-scaffold, pull latest.
-   c. Create branch mg-genie-wb-ws-a-pipeline.
-   d. If EXISTS: checkout mg-genie-wb-ws-a-pipeline (resume).
-   e. ALL code/git work in clone. NEVER in orchestration hub.
-
 IMPORTANT: When in doubt about the best way to implement something, use your available
 tools (docSearch, spark APIs, skill files) to check the latest Databricks best practices
 before proceeding. Always prefer modern APIs and patterns.
 
-9. Build the pipeline:
+10. Build the pipeline:
 
    TARGET SCHEMA: hls_fde_dev.dev_matthew_giglia_wanderbricks_ai
    SOURCE: samples.wanderbricks (all 16 tables)
@@ -138,55 +125,66 @@ before proceeding. Always prefer modern APIs and patterns.
       - Follow Analytics Handbook definitions EXACTLY for all metric calculations
       - Use recency-weighted GSS formula (30d=3.0, 90d=2.0, 365d=1.0, >365d=0.5)
 
-   c. Create fixtures/config/pipeline_config.yml:
-      - Source catalog: samples
-      - Source schema: wanderbricks
-      - Tables list with PKs and business keys for each
-
-   d. Use modern SDP API throughout:
+   c. Use modern SDP API throughout:
       ```python
       from pyspark import pipelines as dp
       @dp.table(name="...", comment="...")
-      @dp.expect("...", "...")  
+      @dp.expect("...", "...")
       @dp.materialized_view(name="...", comment="...")
       spark.readStream.table("catalog.schema.table")
       spark.read.table("catalog.schema.table")
       ```
 
-10. VALIDATE:
-    - Run: databricks bundle validate --target dev (fix any errors)
-    - Run: databricks bundle deploy --target dev
-    - Trigger pipeline refresh: databricks bundle run wanderbricks_pipeline --target dev
-    - Wait for pipeline completion
-    - Run validation queries:
-      * SELECT COUNT(*) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_bookings
-        (should match samples.wanderbricks.bookings count)
-      * SELECT COUNT(*) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_bookings
-        (should be <= bronze, no duplicates)
-      * SELECT COUNT(*), SUM(gbv) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_revenue_daily
-        (should have rows, positive GBV)
-      * SELECT COUNT(DISTINCT property_id) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_occupancy_monthly
-        (should cover multiple properties)
-      * SELECT AVG(gss) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_guest_satisfaction
-        (should be between 1.0 and 5.0)
+== VALIDATE ==
 
-11. COMPLETE:
-    - Update fixtures/handoffs/workstream-a-status.md:
-      - status: COMPLETE, completed_at, output_tables (list all bronze/silver/gold tables), validation: PASSED, bundle_deployed: true, tests_passed: true
-      - "What Was Built" section describing the pipeline architecture
-      - "Notes for Downstream Sessions":
-        * Gold table names and key columns for metric views (WS-B)
-        * Silver table names for feature engineering (WS-D)
-        * How to query: fully qualified names
+11. Run: databricks bundle validate --target dev (fix any errors)
+12. Run: databricks bundle deploy --target dev
+13. Trigger pipeline refresh: databricks bundle run wanderbricks_pipeline --target dev
+14. Wait for pipeline completion
+15. Run validation queries:
+    * SELECT COUNT(*) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_bookings
+      (should match samples.wanderbricks.bookings count)
+    * SELECT COUNT(*) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.silver_bookings
+      (should be <= bronze, no duplicates)
+    * SELECT COUNT(*), SUM(gbv) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_revenue_daily
+      (should have rows, positive GBV)
+    * SELECT COUNT(DISTINCT property_id) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_occupancy_monthly
+      (should cover multiple properties)
+    * SELECT AVG(gss) FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_guest_satisfaction
+      (should be between 1.0 and 5.0)
+
+== COMPLETE ==
+
+16. Update fixtures/handoffs/workstream-a-status.md:
+    - status: COMPLETE, completed_at, output_tables (list all bronze/silver/gold tables), validation: PASSED, bundle_deployed: true, tests_passed: true
+    - "What Was Built" section describing the pipeline architecture
+    - "Notes for Downstream Sessions":
+      * Gold table names and key columns for metric views (WS-B)
+      * Silver table names for feature engineering (WS-D)
+      * How to query: fully qualified names
     - Write session summary to fixtures/sessions/ (date + description)
     - Update fixtures/sessions/INDEX.md
-    - Commit and push branch mg-genie-wb-ws-a-pipeline
-    - Provide detailed next steps for human review
+
+== GIT SYNC (one-way, end of session) ==
+
+17. Ensure push clone exists:
+    Path: /Workspace/Users/matthew.giglia@databricks.com/genie-code-workstream-orchestration/genieCodeWorkshop/push-clone/
+    If NOT: runGit clone (url: https://github.com/mkgs-databricks-demos/genieCodeWorkshop.git, path: above, provider: gitHub)
+18. In push clone: checkout mg-genie-L02-wanderbricks-scaffold, pull latest.
+19. Create/checkout branch mg-genie-wb-ws-a-pipeline.
+20. Copy YOUR files from bundle root → push clone (executeCode with file I/O):
+    - wanderbricks-platform/resources/wanderbricks_pipeline.pipeline.yml
+    - wanderbricks-platform/src/pipelines/bronze.py
+    - wanderbricks-platform/src/pipelines/silver.py
+    - wanderbricks-platform/src/pipelines/gold.py
+    - wanderbricks-platform/fixtures/handoffs/workstream-a-status.md
+    - wanderbricks-platform/fixtures/sessions/*.md (your session file)
+21. Commit + push: runGit commit_and_push on the push clone.
 
 IMPORTANT:
 - Never commit to main or lesson branches directly.
 - Use modern SDP API ONLY (from pyspark import pipelines as dp). Never import dlt.
 - Use ${resources.schemas.wanderbricks_schema.*} for schema refs in resource YAML.
 - Follow the Analytics Handbook definitions exactly for gold layer calculations.
-- Commit and push incrementally as each layer is completed (bronze first, then silver, then gold).
+- The push clone is WRITE-ONLY. Never read from it. Never edit files there directly.
 ```

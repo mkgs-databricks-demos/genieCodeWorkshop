@@ -1,8 +1,8 @@
 ---
-status: COMPLETE
-branch: mg-genie-wb-ws-a-pipeline
-started_at: 2026-08-07T14:00:00Z
-completed_at: 2026-08-07T14:10:00Z
+status: NOT_STARTED
+branch:
+started_at:
+completed_at:
 output_tables:
   - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_properties
   - hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.bronze_bookings
