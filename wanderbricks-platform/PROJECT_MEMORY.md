@@ -71,8 +71,40 @@ Always reference schemas via `${resources.schemas.<name>.*}` to enforce ordering
 - **Session summaries:** After each work session, write to `fixtures/sessions/`
 - **Branch naming:** `<your-initials>-genie-<description>` (never commit to lesson branches directly)
 
+## Workstream Orchestration (Scheduled Tasks)
+
+The Vibe Session 1 answer key is built autonomously via Genie Code Scheduled Tasks.
+Each workstream is a paused task with comprehensive instructions, gate checks, and
+validation criteria. Status files in `fixtures/handoffs/` coordinate dependencies.
+
+### Dependency Graph
+
+```
+WS-0 (Bundle Scaffold) [COMPLETE]
+    → WS-A (SDP Pipeline: bronze→silver→gold)
+        ├→ WS-B (Metric Views + Orchestration Job) [gates on WS-A]
+        │       → WS-C (Genie Agent) [gates on WS-B]
+        └→ WS-D (Feature Tables) [gates on WS-A, parallel with WS-B]
+```
+
+### Key Files
+
+- `fixtures/architecture/scheduled-tasks/README.md` — Orchestration overview
+- `fixtures/architecture/scheduled-tasks/ws-{0,a,b,c,d}-*-prompt.md` — Full task prompts
+- `fixtures/handoffs/README.md` — Protocol documentation
+- `fixtures/handoffs/workstream-{0,a,b,c,d}-status.md` — State machine files
+
+### Conventions
+
+- **Task titles:** `WanderBricks WS-{X} {Description}`
+- **Branches:** `mg-genie-wb-ws-{x}-{description}`
+- **Gate checks:** Table-gated (SQL COUNT on output tables), not code-gated
+- **Self-termination:** COMPLETE status → immediate exit on subsequent fires
+- **Validation:** Every session must `databricks bundle deploy` + run/test before COMPLETE
+
 ## Open Questions
 
 - [ ] Which AppKit variant for Vibe Session 3? (property search, host dashboard, or support agent)
 - [ ] Lakebase schema design for app state
 - [ ] Feature table selection (which features to compute for the gold layer)
+- [ ] Should we add a Topic 5b to the agenda for teaching the workstream orchestration pattern?
