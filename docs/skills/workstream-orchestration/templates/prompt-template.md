@@ -57,6 +57,10 @@ resources, src/ structure) before writing new code.
     - Status files are edited via workspace file tools only (no git needed).
     - ALL git operations (clone, checkout, commit, push) go to the WORKING CLONE.
     - Before any runGit call, verify repoPath starts with the clone base path.
+    - CODE EDITS (src/, resources/, fixtures/config/) go to the CLONE path ONLY.
+      The orchestration hub is READ-ONLY except for status files.
+      When using editAsset or createAsset for code, verify the file path starts
+      with your WORKING CLONE path, NOT the orchestration hub path.
 
 1d. BUNDLE-FIRST RULE (CRITICAL):
     - ALL resources (pipelines, jobs, schemas, volumes) MUST be defined in

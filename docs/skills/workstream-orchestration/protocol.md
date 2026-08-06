@@ -79,8 +79,11 @@ Separate clones solve this completely:
 may ever run `runGit checkout`, `runGit commit_and_push`, or any branch-switching
 operation on the orchestration hub path.
 
-**Allowed on orchestration hub:** `readAssetById`, `editAsset` (for status files)
-**Forbidden on orchestration hub:** ANY `runGit` operation
+**Allowed on orchestration hub:** `readAssetById` (read any file), `editAsset` (status files ONLY)
+**Forbidden on orchestration hub:** ANY `runGit` operation, ANY `editAsset`/`createAsset` for code files
+
+Code files (src/, resources/, fixtures/config/) MUST be created/edited in the CLONE path.
+The orchestration hub is READ-ONLY for everything except status files (fixtures/handoffs/).
 
 **Allowed on clone paths:** ALL git operations (clone, checkout, commit, push, pull)
 
