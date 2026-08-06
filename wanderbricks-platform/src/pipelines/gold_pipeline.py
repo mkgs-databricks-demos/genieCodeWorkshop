@@ -14,12 +14,13 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Imports
 from pyspark import pipelines as dp
 from pyspark.sql.functions import (
     col, sum as spark_sum, count, countDistinct, avg,
     when, datediff, date_trunc, current_date, trunc,
     coalesce, lit, round as spark_round,
-    max as spark_max
+    max as spark_max, date_sub
 )
 
 # COMMAND ----------
@@ -216,6 +217,7 @@ def gold_guest_satisfaction():
 
 # COMMAND ----------
 
+# DBTITLE 1,gold_host_performance fix
 @dp.materialized_view(
     name="gold_host_performance",
     comment="Host superhost qualification metrics. Trailing 90-day window. Grain: one row per host."
@@ -227,7 +229,7 @@ def gold_host_performance():
     hosts = spark.read.table("silver_hosts")
     booking_updates = spark.read.table("silver_booking_updates")
 
-    cutoff_90d = datediff(current_date(), lit(90))
+    cutoff_90d = date_sub(current_date(), 90)
 
     # Bookings in trailing 90 days per property
     recent_bookings = (
