@@ -1,0 +1,18 @@
+resources:
+  schemas:
+    wanderbricks_schema:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      comment: "WanderBricks Intelligence Platform - gold analytics, metric views, features, and AI search artifacts"
+    wanderbricks_bronze:
+      catalog_name: ${var.catalog}
+      name: wanderbricks_bronze
+      comment: "Bronze layer - raw ingestion from samples.wanderbricks via streaming tables"
+    wanderbricks_silver:
+      catalog_name: ${var.catalog}
+      name: wanderbricks_silver
+      comment: "Silver layer - cleaned, conformed, and deduplicated tables"
+    wanderbricks_gold:
+      catalog_name: ${var.catalog}
+      name: wanderbricks_gold
+      comment: "Gold layer - business-ready aggregates and metric views"

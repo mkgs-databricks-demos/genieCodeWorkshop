@@ -1,0 +1,23 @@
+resources:
+  pipelines:
+    wanderbricks_pipeline:
+      name: wanderbricks-platform-pipeline
+      catalog: ${resources.schemas.wanderbricks_bronze.catalog_name}
+      target: ${resources.schemas.wanderbricks_bronze.name}
+      serverless: true
+      photon: true
+      channel: CURRENT
+      libraries:
+        - notebook:
+            path: ../src/pipelines/bronze.py
+        - notebook:
+            path: ../src/pipelines/silver.py
+        - notebook:
+            path: ../src/pipelines/gold.py
+      configuration:
+        source_catalog: samples
+        source_schema: wanderbricks
+        bronze_schema: ${resources.schemas.wanderbricks_bronze.name}
+        silver_schema: ${resources.schemas.wanderbricks_silver.name}
+        gold_schema: ${resources.schemas.wanderbricks_gold.name}
+        target_catalog: ${resources.schemas.wanderbricks_bronze.catalog_name}

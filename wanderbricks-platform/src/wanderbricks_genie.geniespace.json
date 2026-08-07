@@ -1,0 +1,541 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+        "question": [
+          "What is the total Gross Booking Value (GBV) by destination?"
+        ]
+      },
+      {
+        "id": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6a7",
+        "question": [
+          "Which properties have the highest occupancy rate?"
+        ]
+      },
+      {
+        "id": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6a7b8",
+        "question": [
+          "What is the average Guest Satisfaction Score by destination?"
+        ]
+      },
+      {
+        "id": "d4e5f6a7b8c9d0e1f2a3b4c5d6a7b8c9",
+        "question": [
+          "Which hosts qualify for Superhost status?"
+        ]
+      },
+      {
+        "id": "e5f6a7b8c9d0e1f2a3b4c5d6a7b8c9d0",
+        "question": [
+          "What is the Average Daily Rate (ADR) trend over time?"
+        ]
+      },
+      {
+        "id": "f6a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1",
+        "question": [
+          "What is the average length of stay by property type?"
+        ]
+      },
+      {
+        "id": "a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1f2",
+        "question": [
+          "Which destinations have the highest negative review rate?"
+        ]
+      },
+      {
+        "id": "b8c9d0e1f2a3b4c5d6a7b8c9d0e1f2a3",
+        "question": [
+          "Show me Net Revenue by month and property type"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_guest_satisfaction",
+        "column_configs": [
+          {
+            "column_name": "avg_rating_unweighted"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "first_review_at"
+          },
+          {
+            "column_name": "gss"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "last_review_at"
+          },
+          {
+            "column_name": "negative_review_count"
+          },
+          {
+            "column_name": "negative_review_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "review_count"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_host_performance",
+        "column_configs": [
+          {
+            "column_name": "avg_rating_90d"
+          },
+          {
+            "column_name": "cancellation_rate"
+          },
+          {
+            "column_name": "completed_bookings_90d"
+          },
+          {
+            "column_name": "host_cancellations_90d"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "host_name"
+          },
+          {
+            "column_name": "is_active"
+          },
+          {
+            "column_name": "is_verified"
+          },
+          {
+            "column_name": "joined_at"
+          },
+          {
+            "column_name": "qualifies_superhost"
+          },
+          {
+            "column_name": "review_count_90d"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_occupancy_monthly",
+        "column_configs": [
+          {
+            "column_name": "adr"
+          },
+          {
+            "column_name": "alos"
+          },
+          {
+            "column_name": "avg_guests"
+          },
+          {
+            "column_name": "booked_nights"
+          },
+          {
+            "column_name": "booking_count"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "month"
+          },
+          {
+            "column_name": "occupancy_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_revenue"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_property_summary",
+        "column_configs": [
+          {
+            "column_name": "amenity_count"
+          },
+          {
+            "column_name": "avg_rating"
+          },
+          {
+            "column_name": "avg_stay_nights"
+          },
+          {
+            "column_name": "base_price"
+          },
+          {
+            "column_name": "bathrooms"
+          },
+          {
+            "column_name": "bedrooms"
+          },
+          {
+            "column_name": "continent"
+          },
+          {
+            "column_name": "destination_country"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "image_count"
+          },
+          {
+            "column_name": "max_guests"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "review_count"
+          },
+          {
+            "column_name": "title"
+          },
+          {
+            "column_name": "total_booked_nights"
+          },
+          {
+            "column_name": "total_bookings"
+          },
+          {
+            "column_name": "total_gbv"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_revenue_daily",
+        "column_configs": [
+          {
+            "column_name": "avg_booking_value"
+          },
+          {
+            "column_name": "booking_count"
+          },
+          {
+            "column_name": "booking_date"
+          },
+          {
+            "column_name": "destination_country"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "gbv"
+          },
+          {
+            "column_name": "host_payout"
+          },
+          {
+            "column_name": "net_revenue"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_nights"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_guest_satisfaction",
+        "column_configs": [
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "gss"
+          },
+          {
+            "column_name": "negative_review_count"
+          },
+          {
+            "column_name": "negative_review_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "review_count"
+          },
+          {
+            "column_name": "simple_avg_rating"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_host_performance",
+        "column_configs": [
+          {
+            "column_name": "avg_rating_90d"
+          },
+          {
+            "column_name": "cancellation_rate"
+          },
+          {
+            "column_name": "completed_bookings_90d"
+          },
+          {
+            "column_name": "country"
+          },
+          {
+            "column_name": "host_cancellations"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "host_name"
+          },
+          {
+            "column_name": "is_active"
+          },
+          {
+            "column_name": "is_verified"
+          },
+          {
+            "column_name": "joined_at"
+          },
+          {
+            "column_name": "qualifies_superhost"
+          },
+          {
+            "column_name": "review_count_90d"
+          },
+          {
+            "column_name": "total_eligible_bookings"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_occupancy_metrics",
+        "column_configs": [
+          {
+            "column_name": "adr"
+          },
+          {
+            "column_name": "alos"
+          },
+          {
+            "column_name": "avg_lead_time_days"
+          },
+          {
+            "column_name": "booked_nights"
+          },
+          {
+            "column_name": "booking_count"
+          },
+          {
+            "column_name": "booking_month"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "occupancy_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_revenue"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_revenue_metrics",
+        "column_configs": [
+          {
+            "column_name": "adr"
+          },
+          {
+            "column_name": "booking_date"
+          },
+          {
+            "column_name": "confirmed_booking_count"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "gbv"
+          },
+          {
+            "column_name": "net_revenue"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_guests"
+          },
+          {
+            "column_name": "total_nights"
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "11a1b1c1d1e1f1a2b2c2d2e2f2a3b3c3",
+        "content": [
+          "## WanderBricks Intelligence Platform\n\n",
+          "This Genie space answers business questions about WanderBricks, a vacation rental marketplace. ",
+          "Data spans bookings, properties, hosts, guests, and destinations across multiple countries.\n\n",
+          "### Key Metric Definitions\n\n",
+          "**Gross Booking Value (GBV):** Total confirmed booking revenue. Formula: SUM(total_amount) WHERE status = 'confirmed'. Time dimension is booking creation date.\n\n",
+          "**Net Revenue:** Platform commission = GBV \u00d7 0.15. Host payout = GBV \u00d7 0.85.\n\n",
+          "**Average Daily Rate (ADR):** Revenue per booked night = SUM(total_amount) / SUM(nights).\n\n",
+          "**Occupancy Rate:** Percentage of available property-nights booked. Range 0 to 1 (multiply by 100 for percentage).\n\n",
+          "**Average Length of Stay (ALOS):** Average nights per booking.\n\n",
+          "**Guest Satisfaction Score (GSS):** Recency-weighted average rating (1.0-5.0 scale). Weights: 30d=3.0, 90d=2.0, 365d=1.0, >365d=0.5. Target: platform-wide \u2265 4.2.\n\n",
+          "**Superhost Status:** Requires ALL: avg_rating_90d \u2265 4.5, completed_bookings_90d \u2265 10, cancellation_rate < 2%, response_rate \u2265 90%.\n\n",
+          "**Negative Review Rate:** Reviews with rating < 3.0 / total reviews. Alert threshold: > 20%.\n\n",
+          "### Table Guide\n\n",
+          "- **mv_revenue_metrics**: Pre-aggregated daily revenue by property and destination (use for revenue questions)\n",
+          "- **mv_occupancy_metrics**: Monthly occupancy, ALOS, lead time by property/destination (use for utilization questions)\n",
+          "- **mv_guest_satisfaction**: Per-property GSS with recency weighting (use for satisfaction/review questions)\n",
+          "- **mv_host_performance**: Per-host Superhost qualification metrics (use for host performance questions)\n",
+          "- **gold_revenue_daily**: Detailed daily revenue with host payout split\n",
+          "- **gold_occupancy_monthly**: Monthly property utilization with guest counts\n",
+          "- **gold_guest_satisfaction**: Per-property satisfaction with review timeline\n",
+          "- **gold_host_performance**: Per-host metrics for Superhost evaluation\n",
+          "- **gold_property_summary**: Property master with lifetime aggregates, location, and quality metrics\n\n",
+          "### Tips\n\n",
+          "- For revenue trending, use mv_revenue_metrics grouped by booking_date\n",
+          "- For destination comparisons, group by destination_name\n",
+          "- occupancy_rate is already a ratio (0\u20131); multiply by 100 for percent display\n",
+          "- Use gold_property_summary to join property details (type, location, price) to any metric\n",
+          "- qualifies_superhost is a boolean indicating current Superhost eligibility\n"
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "22a2b2c2d2e2f2a3b3c3d3e3f3a4b4c4",
+        "question": [
+          "What is the total GBV and Net Revenue by destination?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  destination_name,\n",
+          "  SUM(gbv) AS total_gbv,\n",
+          "  SUM(net_revenue) AS total_net_revenue,\n",
+          "  SUM(confirmed_booking_count) AS total_bookings\n",
+          "FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_revenue_metrics\n",
+          "GROUP BY destination_name\n",
+          "ORDER BY total_gbv DESC"
+        ]
+      },
+      {
+        "id": "33a3b3c3d3e3f3a4b4c4d4e4f4a5b5c5",
+        "question": [
+          "Which destinations have the highest occupancy rate?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  destination_name,\n",
+          "  AVG(occupancy_rate) * 100 AS avg_occupancy_pct,\n",
+          "  AVG(alos) AS avg_length_of_stay,\n",
+          "  SUM(booking_count) AS total_bookings\n",
+          "FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_occupancy_metrics\n",
+          "GROUP BY destination_name\n",
+          "ORDER BY avg_occupancy_pct DESC"
+        ]
+      },
+      {
+        "id": "44a4b4c4d4e4f4a5b5c5d5e5f5a6b6c6",
+        "question": [
+          "How many hosts qualify for Superhost status?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  qualifies_superhost,\n",
+          "  COUNT(*) AS host_count,\n",
+          "  AVG(avg_rating_90d) AS avg_rating,\n",
+          "  AVG(cancellation_rate) * 100 AS avg_cancellation_pct\n",
+          "FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_host_performance\n",
+          "GROUP BY qualifies_superhost"
+        ]
+      },
+      {
+        "id": "55a5b5c5d5e5f5a6b6c6d6e6f6a7b7c7",
+        "question": [
+          "What are the top 10 properties by Guest Satisfaction Score?"
+        ],
+        "sql": [
+          "SELECT\n",
+          "  gs.property_id,\n",
+          "  ps.title,\n",
+          "  gs.destination_name,\n",
+          "  gs.gss,\n",
+          "  gs.review_count,\n",
+          "  gs.negative_review_rate\n",
+          "FROM hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_guest_satisfaction gs\n",
+          "JOIN hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.gold_property_summary ps\n",
+          "  ON gs.property_id = ps.property_id\n",
+          "WHERE gs.review_count >= 5\n",
+          "ORDER BY gs.gss DESC\n",
+          "LIMIT 10"
+        ]
+      }
+    ]
+  }
+}

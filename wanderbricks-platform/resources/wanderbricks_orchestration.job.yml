@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    wanderbricks_orchestration:
+      name: "WanderBricks Pipeline Refresh"
+      description: "Orchestrates pipeline refresh followed by metric view refresh"
+      tags:
+        project: wanderbricks
+        workstream: ws-b
+      tasks:
+        - task_key: refresh_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.wanderbricks_pipeline.id}
+            full_refresh: false
+
+        - task_key: refresh_metric_views
+          depends_on:
+            - task_key: refresh_pipeline
+          notebook_task:
+            notebook_path: ../src/sql/refresh_metric_views.sql
+            warehouse_id: ${var.warehouse_id}
+            base_parameters:
+              catalog_name: ${resources.schemas.wanderbricks_schema.catalog_name}
+              schema_name: ${resources.schemas.wanderbricks_schema.name}
