@@ -1,0 +1,29 @@
+bundle:
+  name: wanderbricks-platform
+  engine: direct
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: "Unity Catalog catalog for all WanderBricks resources"
+  schema:
+    description: "Schema name for WanderBricks platform objects"
+  warehouse_id:
+    description: "SQL warehouse ID for dashboard and query execution"
+    lookup:
+      warehouse: "Serverless Starter Warehouse"
+  lakebase_project_id:
+    description: "Lakebase Autoscaling project ID (target-specific)"
+
+targets:
+  dev:
+    default: true
+    mode: development
+    presets:
+      source_linked_deployment: false
+    variables:
+      catalog: hls_fde_dev
+      schema: wanderbricks_ai
+      lakebase_project_id: wanderbricks-ai
