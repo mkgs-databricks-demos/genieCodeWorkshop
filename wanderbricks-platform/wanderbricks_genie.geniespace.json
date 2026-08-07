@@ -1,0 +1,353 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "d5c7cb69bd6d4be7aa6b6e31be9a9b7f",
+        "question": [
+          "What is the total Gross Booking Value (GBV) by destination?"
+        ]
+      },
+      {
+        "id": "15ea55df27d44ee7801a59cb1bde9cd0",
+        "question": [
+          "Compare revenue performance across property types"
+        ]
+      },
+      {
+        "id": "7ac8c4417866432b979d1f6037dc7ec9",
+        "question": [
+          "Which destinations have the highest occupancy rate this year?"
+        ]
+      },
+      {
+        "id": "d1837beaac414b6ea437b817d754a85e",
+        "question": [
+          "What is the average booking lead time and length of stay by destination?"
+        ]
+      },
+      {
+        "id": "575d87fcfb0c4e2e89256a73a2603c83",
+        "question": [
+          "What is the Guest Satisfaction Score (GSS) distribution across properties?"
+        ]
+      },
+      {
+        "id": "46c5282ebc1840d896aab1da6455569c",
+        "question": [
+          "How many hosts currently qualify for Superhost status?"
+        ]
+      },
+      {
+        "id": "24af211806a44b9d9e98bee71e480d31",
+        "question": [
+          "Show me the Average Daily Rate (ADR) trend by property type over the last 6 months"
+        ]
+      },
+      {
+        "id": "439743d9ba2b4031823194db405a5e25",
+        "question": [
+          "Which properties have the best quality tier and highest recent GSS?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.feature_host_performance",
+        "column_configs": [
+          {
+            "column_name": "avg_rating_90d"
+          },
+          {
+            "column_name": "cancellation_rate"
+          },
+          {
+            "column_name": "completed_bookings_90d"
+          },
+          {
+            "column_name": "country"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "host_name"
+          },
+          {
+            "column_name": "is_active"
+          },
+          {
+            "column_name": "is_superhost"
+          },
+          {
+            "column_name": "is_verified"
+          },
+          {
+            "column_name": "joined_at"
+          },
+          {
+            "column_name": "review_count_90d"
+          },
+          {
+            "column_name": "superhost_score"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.feature_property_quality",
+        "column_configs": [
+          {
+            "column_name": "avg_rating"
+          },
+          {
+            "column_name": "base_price"
+          },
+          {
+            "column_name": "bathrooms"
+          },
+          {
+            "column_name": "bedrooms"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "max_guests"
+          },
+          {
+            "column_name": "occupancy_rate_30d"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "quality_tier"
+          },
+          {
+            "column_name": "recent_gss"
+          },
+          {
+            "column_name": "review_count"
+          },
+          {
+            "column_name": "title"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_guest_satisfaction",
+        "column_configs": [
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "gss"
+          },
+          {
+            "column_name": "negative_review_count"
+          },
+          {
+            "column_name": "negative_review_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "review_count"
+          },
+          {
+            "column_name": "simple_avg_rating"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_host_performance",
+        "column_configs": [
+          {
+            "column_name": "avg_rating_90d"
+          },
+          {
+            "column_name": "cancellation_rate"
+          },
+          {
+            "column_name": "completed_bookings_90d"
+          },
+          {
+            "column_name": "country"
+          },
+          {
+            "column_name": "host_cancellations"
+          },
+          {
+            "column_name": "host_id"
+          },
+          {
+            "column_name": "host_name"
+          },
+          {
+            "column_name": "is_active"
+          },
+          {
+            "column_name": "is_verified"
+          },
+          {
+            "column_name": "joined_at"
+          },
+          {
+            "column_name": "qualifies_superhost"
+          },
+          {
+            "column_name": "review_count_90d"
+          },
+          {
+            "column_name": "total_eligible_bookings"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_occupancy_metrics",
+        "column_configs": [
+          {
+            "column_name": "adr"
+          },
+          {
+            "column_name": "alos"
+          },
+          {
+            "column_name": "avg_lead_time_days"
+          },
+          {
+            "column_name": "booked_nights"
+          },
+          {
+            "column_name": "booking_count"
+          },
+          {
+            "column_name": "booking_month"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "occupancy_rate"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_revenue"
+          }
+        ]
+      },
+      {
+        "identifier": "hls_fde_dev.dev_matthew_giglia_wanderbricks_ai.mv_revenue_metrics",
+        "column_configs": [
+          {
+            "column_name": "adr"
+          },
+          {
+            "column_name": "booking_date"
+          },
+          {
+            "column_name": "confirmed_booking_count"
+          },
+          {
+            "column_name": "destination_id"
+          },
+          {
+            "column_name": "destination_name"
+          },
+          {
+            "column_name": "gbv"
+          },
+          {
+            "column_name": "net_revenue"
+          },
+          {
+            "column_name": "property_id"
+          },
+          {
+            "column_name": "property_type"
+          },
+          {
+            "column_name": "total_guests"
+          },
+          {
+            "column_name": "total_nights"
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "621bb420817846d3b4b724a20db0447e",
+        "content": [
+          "You are an analytics assistant for WanderBricks, a vacation rental marketplace platform.",
+          "You help business users explore revenue, occupancy, guest satisfaction, and host performance metrics.",
+          "Always provide context about what the metrics mean when presenting results.",
+          "",
+          "FEATURE TABLES (use for detailed property/host analysis):",
+          "- feature_property_quality: per-property quality metrics. quality_tier categorizes properties.",
+          "- Includes recent_gss, occupancy_rate_30d, price_percentile for property comparisons.",
+          "- feature_host_performance: enriched host data with superhost_score (0-1 continuous) and is_superhost boolean.",
+          "",
+          "HOST PERFORMANCE (use mv_host_performance table):",
+          "- Superhost requires ALL: avg_rating_90d >= 4.5, completed_bookings_90d >= 10, cancellation_rate < 0.02.",
+          "- qualifies_superhost boolean shows current qualification.",
+          "- Evaluation is monthly. 30-day grace period before badge removal.",
+          "- For enriched host data with superhost_score, use feature_host_performance.",
+          "",
+          "JOIN GUIDANCE:",
+          "- Join on property_id for cross-metric property analysis (revenue + occupancy + satisfaction).",
+          "- Join on host_id for host-level analysis across tables.",
+          "- destination_id and destination_name available in most tables for geographic segmentation.",
+          "- property_type enables segmentation by listing type (house, apartment, villa, etc.).",
+          "",
+          "OCCUPANCY METRICS (use mv_occupancy_metrics table):",
+          "- Occupancy Rate = booked_nights / available_nights. The occupancy_rate column is pre-computed.",
+          "- ALOS (Average Length of Stay) = average nights per booking. See the alos column.",
+          "- Booking Lead Time = days between booking creation and check-in. See avg_lead_time_days.",
+          "- Platform target is 65% occupancy rate.",
+          "- Data is at monthly grain (booking_month column). Use this for trend analysis.",
+          "- Lead time benchmarks: < 7 days = last minute, 7-30 days = medium-term, > 30 days = advance planners.",
+          "",
+          "REVENUE METRICS (use mv_revenue_metrics table):",
+          "- GBV (Gross Booking Value) = SUM(gbv) for confirmed bookings only.",
+          "- Net Revenue = GBV x 0.15 (platform commission). The net_revenue column already has this applied.",
+          "- ADR (Average Daily Rate) = total revenue / total booked nights. The adr column has this pre-computed per property per day.",
+          "- All revenue is based on booking creation date (booking_date column), not check-in date.",
+          "- confirmed_booking_count is the number of confirmed bookings per property per day.",
+          "",
+          "GUEST SATISFACTION (use mv_guest_satisfaction table):",
+          "- GSS (Guest Satisfaction Score) uses recency-weighted ratings.",
+          "- Recency weights: 30-day reviews = 3.0, 90-day = 2.0, 365-day = 1.0, older = 0.5.",
+          "- Scale is 1.0 to 5.0. Platform target is GSS >= 4.2.",
+          "- Negative Review Rate = negative_review_count / review_count. Alert threshold is > 20%.",
+          "- simple_avg_rating is the unweighted average for comparison."
+        ]
+      }
+    ]
+  }
+}

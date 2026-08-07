@@ -1,0 +1,19 @@
+resources:
+  pipelines:
+    wanderbricks_pipeline:
+      name: wanderbricks_pipeline
+      serverless: true
+      channel: preview
+      edition: ADVANCED
+      catalog: ${resources.schemas.wanderbricks_schema.catalog_name}
+      schema: ${resources.schemas.wanderbricks_schema.name}
+      libraries:
+        - file:
+            path: ../src/pipelines/bronze.py
+        - file:
+            path: ../src/pipelines/silver.py
+        - file:
+            path: ../src/pipelines/gold.py
+      configuration:
+        catalog_use: ${resources.schemas.wanderbricks_schema.catalog_name}
+        schema_use: ${resources.schemas.wanderbricks_schema.name}

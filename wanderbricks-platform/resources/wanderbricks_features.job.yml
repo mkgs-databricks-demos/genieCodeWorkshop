@@ -1,0 +1,24 @@
+resources:
+  jobs:
+    feature_computation:
+      name: "WanderBricks Feature Computation"
+      description: "Computes ML feature tables (host performance + property quality) from silver layer. Runs daily."
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "UTC"
+      tasks:
+        - task_key: host_performance_features
+          notebook_task:
+            notebook_path: ../src/features/host_performance_features.py
+            base_parameters:
+              catalog: ${resources.schemas.wanderbricks_schema.catalog_name}
+              schema: ${resources.schemas.wanderbricks_schema.name}
+
+        - task_key: property_quality_features
+          notebook_task:
+            notebook_path: ../src/features/property_quality_features.py
+            base_parameters:
+              catalog: ${resources.schemas.wanderbricks_schema.catalog_name}
+              schema: ${resources.schemas.wanderbricks_schema.name}
+          depends_on:
+            - task_key: host_performance_features

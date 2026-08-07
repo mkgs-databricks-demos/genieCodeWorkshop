@@ -1,0 +1,10 @@
+resources:
+  genie_spaces:
+    wanderbricks_analytics:
+      title: "WanderBricks Analytics Agent"
+      description: "Ask natural language questions about WanderBricks vacation rental metrics — revenue, occupancy, guest satisfaction, and host performance."
+      warehouse_id: ${var.warehouse_id}
+      file_path: ../wanderbricks_genie.geniespace.json
+      permissions:
+        - level: CAN_RUN
+          group_name: users

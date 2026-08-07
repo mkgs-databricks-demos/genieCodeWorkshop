@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    wanderbricks_orchestration:
+      name: "WanderBricks Pipeline Refresh"
+      tasks:
+        # Task 1: Refresh the SDP pipeline (bronze -> silver -> gold)
+        - task_key: refresh_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.wanderbricks_pipeline.id}
+            full_refresh: false
+
+        # Task 2: Refresh all metric views (depends on pipeline)
+        - task_key: refresh_metric_views
+          depends_on:
+            - task_key: refresh_pipeline
+          notebook_task:
+            notebook_path: ../src/sql/refresh_metric_views.py
+            base_parameters:
+              catalog_use: ${resources.schemas.wanderbricks_schema.catalog_name}
+              schema_use: ${resources.schemas.wanderbricks_schema.name}
